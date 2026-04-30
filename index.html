@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KCTradesAndToks — Digital Strategist & Growth Architect</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --void:      #04070d;
+  --deep:      #080e1a;
+  --panel:     #0d1524;
+  --panel2:    #111d2e;
+  --border:    rgba(255,255,255,0.07);
+  --border2:   rgba(59,175,255,0.18);
+  --blue:      #3bafff;
+  --blue-glow: rgba(59,175,255,0.18);
+  --blue-dim:  rgba(59,175,255,0.07);
+  --blue-mid:  rgba(59,175,255,0.35);
+  --cyan:      #00d4ff;
+  --white:     #e8f0ff;
+  --muted:     rgba(232,240,255,0.45);
+  --faint:     rgba(232,240,255,0.18);
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--void);
+  color: var(--white);
+  font-family: 'Syne', sans-serif;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ── CURSOR ─────────────────────────── */
+#cur { position:fixed; width:8px; height:8px; background:var(--blue); border-radius:50%; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); transition:transform 0.1s; mix-blend-mode:screen; }
+#cur-ring { position:fixed; width:32px; height:32px; border:1px solid var(--blue-mid); border-radius:50%; pointer-events:none; z-index:9998; transform:translate(-50%,-50%); transition:width 0.3s,height 0.3s,border-color 0.3s; }
+
+/* ── SCANLINE OVERLAY ───────────────── */
+body::after {
+  content:'';
+  position:fixed; inset:0; pointer-events:none; z-index:1;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 4px);
+}
+
+/* ── NOISE ──────────────────────────── */
+body::before {
+  content:'';
+  position:fixed; inset:0; pointer-events:none; z-index:0; opacity:0.25;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+}
+
+/* ── UTILITY ────────────────────────── */
+.wrap { max-width:1140px; margin:0 auto; padding:0 48px; position:relative; z-index:2; }
+@media(max-width:768px){ .wrap{ padding:0 20px; } }
+
+.reveal { opacity:0; transform:translateY(22px); transition:opacity 0.7s ease, transform 0.7s ease; }
+.reveal.on { opacity:1; transform:none; }
+
+.glow-line {
+  width:60px; height:2px;
+  background: linear-gradient(90deg, var(--blue), transparent);
+  margin-bottom:20px;
+}
+
+/* ── HEADER ─────────────────────────── */
+header {
+  position:fixed; top:0; width:100%; z-index:100;
+  padding:0 48px; height:72px;
+  display:flex; align-items:center; justify-content:space-between;
+  transition:background 0.4s, border-color 0.4s;
+  border-bottom:1px solid transparent;
+}
+header.stuck {
+  background:rgba(4,7,13,0.92);
+  backdrop-filter:blur(20px);
+  border-color:var(--border2);
+}
+.logo {
+  font-family:'Bebas Neue', sans-serif;
+  font-size:26px; letter-spacing:0.1em;
+  color:var(--white);
+  display:flex; align-items:center; gap:10px;
+}
+.logo-kc { color:var(--blue); }
+.logo-dot {
+  width:6px; height:6px; background:var(--blue);
+  border-radius:50%;
+  box-shadow:0 0 10px var(--blue), 0 0 24px var(--blue);
+  animation: blink 2.5s infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+nav { display:flex; align-items:center; gap:6px; }
+nav a {
+  font-family:'IBM Plex Mono', monospace;
+  font-size:11px; letter-spacing:0.14em; text-transform:uppercase;
+  color:var(--muted); text-decoration:none;
+  padding:8px 16px; border:1px solid transparent;
+  transition:color 0.2s, border-color 0.2s;
+}
+nav a:hover { color:var(--blue); border-color:var(--border2); }
+.nav-cta {
+  background:var(--blue) !important;
+  color:var(--void) !important;
+  font-weight:500;
+  border-color:var(--blue) !important;
+}
+.nav-cta:hover { background:var(--cyan) !important; border-color:var(--cyan) !important; transform:translateY(-1px); }
+
+/* ── HERO ───────────────────────────── */
+.hero {
+  min-height:100vh;
+  display:flex; align-items:center;
+  padding:100px 0 80px;
+  position:relative; overflow:hidden;
+}
+
+/* Background: simulated door-light projection glow */
+.hero-bg {
+  position:absolute; inset:0;
+  background:
+    radial-gradient(ellipse 55% 55% at 78% 62%, rgba(59,175,255,0.12) 0%, transparent 65%),
+    radial-gradient(ellipse 35% 45% at 20% 30%, rgba(0,212,255,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 40% at 50% 100%, rgba(59,175,255,0.06) 0%, transparent 60%);
+}
+
+/* Animated glow ring (like the Merc logo projection) */
+.hero-ring {
+  position:absolute; right:-80px; bottom:-120px;
+  width:600px; height:600px;
+  border:1px solid rgba(59,175,255,0.08);
+  border-radius:50%;
+  animation: spin 40s linear infinite;
+}
+.hero-ring::before {
+  content:''; position:absolute; inset:40px;
+  border:1px solid rgba(59,175,255,0.06); border-radius:50%;
+}
+.hero-ring::after {
+  content:''; position:absolute; inset:100px;
+  border:1px solid rgba(59,175,255,0.05); border-radius:50%;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+
+.hero-grid {
+  display:grid; grid-template-columns:1fr 440px; gap:72px; align-items:center;
+}
+
+.hero-tag {
+  font-family:'IBM Plex Mono', monospace;
+  font-size:11px; letter-spacing:0.2em; text-transform:uppercase;
+  color:var(--blue);
+  display:inline-flex; align-items:center; gap:10px;
+  margin-bottom:28px;
+  opacity:0; animation:up 0.7s 0.1s ease forwards;
+}
+.hero-tag::before {
+  content:''; width:28px; height:1px; background:var(--blue);
+  box-shadow:0 0 6px var(--blue);
+}
+
+h1.hero-title {
+  font-family:'Bebas Neue', sans-serif;
+  font-size:clamp(58px, 7.5vw, 100px);
+  line-height:0.95; letter-spacing:0.02em;
+  color:var(--white);
+  opacity:0; animation:up 0.8s 0.25s ease forwards;
+}
+h1.hero-title .accent {
+  color:transparent;
+  -webkit-text-stroke:1.5px var(--blue);
+  text-shadow:0 0 40px rgba(59,175,255,0.4);
+  display:block;
+}
+h1.hero-title .lit {
+  color:var(--blue);
+  text-shadow:0 0 30px rgba(59,175,255,0.6), 0 0 60px rgba(59,175,255,0.2);
+}
+
+.hero-sub {
+  font-size:16px; font-weight:400; line-height:1.8;
+  color:var(--muted); max-width:480px; margin-top:24px;
+  opacity:0; animation:up 0.8s 0.45s ease forwards;
+}
+
+.hero-btns {
+  display:flex; gap:14px; flex-wrap:wrap; margin-top:40px;
+  opacity:0; animation:up 0.8s 0.6s ease forwards;
+}
+.btn {
+  font-family:'IBM Plex Mono', monospace;
+  font-size:11px; letter-spacing:0.14em; text-transform:uppercase;
+  padding:14px 32px; text-decoration:none; display:inline-flex;
+  align-items:center; gap:10px; transition:all 0.25s; cursor:none;
+}
+.btn-blue {
+  background:var(--blue); color:var(--void); font-weight:500;
+  box-shadow:0 0 20px rgba(59,175,255,0.3);
+}
+.btn-blue:hover { background:var(--cyan); box-shadow:0 0 40px rgba(59,175,255,0.5); transform:translateY(-2px); }
+.btn-ghost {
+  border:1px solid var(--border2); color:var(--blue);
+}
+.btn-ghost:hover { background:var(--blue-dim); border-color:var(--blue); transform:translateY(-2px); }
+
+.hero-metrics {
+  display:flex; gap:0; margin-top:52px; border-top:1px solid var(--border);
+  padding-top:32px;
+  opacity:0; animation:up 0.8s 0.8s ease forwards;
+}
+.metric { flex:1; padding-right:28px; }
+.metric + .metric { padding-left:28px; border-left:1px solid var(--border); }
+.metric-val {
+  font-family:'Bebas Neue', sans-serif;
+  font-size:36px; letter-spacing:0.05em;
+  color:var(--blue);
+  text-shadow:0 0 20px rgba(59,175,255,0.5);
+  line-height:1;
+}
+.metric-label {
+  font-family:'IBM Plex Mono', monospace;
+  font-size:9px; letter-spacing:0.16em; text-transform:uppercase;
+  color:var(--faint); margin-top:6px;
+}
+
+/* Hero photo card */
+.hero-photo-card {
+  position:relative;
+  opacity:0; animation:up 0.9s 0.5s ease forwards;
+}
+.hero-photo-card::before {
+  content:'';
+  position:absolute; inset:-2px;
+  background:linear-gradient(135deg, var(--blue) 0%, transparent 50%, var(--cyan) 100%);
+  z-index:0; opacity:0.5;
+}
+.hero-photo-card::after {
+  content:'';
+  position:absolute; inset:0;
+  box-shadow:0 0 60px rgba(59,175,255,0.25), 0 0 120px rgba(59,175,255,0.1);
+  z-index:3; pointer-events:none;
+}
+.photo-inner {
+  position:relative; z-index:2;
+  background:var(--panel);
+}
+.photo-inner img {
+  width:100%; display:block;
+  filter:brightness(0.9) saturate(1.1);
+}
+.photo-overlay {
+  position:absolute; bottom:0; left:0; right:0;
+  background:linear-gradient(to top, rgba(4,7,13,0.95) 0%, transparent 60%);
+  padding:28px 24px;
+  z-index:3;
+}
+.photo-brand {
+  font-family:'Bebas Neue', sans-serif;
+  font-size:22px; letter-spacing:0.12em;
+  color:var(--white);
+}
+.photo-brand span { color:var(--blue); }
+.photo-tagline {
+  font-family:'IBM Plex Mono', monospace;
+  font-size:10px; letter-spacing:0.16em; text-transform:uppercase;
+  color:var(--muted); margin-top:4px;
+}
+.photo-corner {
+  position:absolute; top:16px; right:16px; z-index:4;
+  display:flex; align-items:center; gap:6px;
+  background:rgba(4,7,13,0.7);
+  border:1px solid var(--border2);
+  padding:6px 12px;
+  font-family:'IBM Plex Mono', monospace;
+  font-size:10px; letter-spacing:0.12em; text-transform:uppercase;
+  color:var(--blue);
+}
+.corner-dot { width:6px; height:6px; background:var(--blue); border-radius:50%; animation:blink 2s infinite; box-shadow:0 0 8px var(--blue); }
+
+/* ── ABOUT ──────────────────────────── */
+#about { padding:110px 0; }
+.about-grid { display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:start; }
+.eyebrow {
+  font-family:'IBM Plex Mono', monospace;
+  font-size:10px; letter-spacing:0.22em; text-transform:uppercase;
+  color:var(--blue); display:flex; align-items:center; gap:10px;
+  margin-bottom:22px;
+}
+.eyebrow::before { content:''; width:20px; height:1px; background:var(--blue); box-shadow:0 0 6px var(--blue); }
+
+.section-title {
+  font-family:'Bebas Neue', sans-serif;
+  font-size:clamp(36px, 4vw, 52px);
+  letter-spacing:0.03em; line-height:1.05;
+  color:var(--white);
+}
+.section-title .hi { color:var(--blue); }
+
+.about-text {
+  font-size:15px; line-height:1.85; color:var(--muted); margin-top:20px;
+}
+.about-text p + p { margin-top:16px; }
+.about-text strong { color:var(--white); font-weight:600; }
+
+.pillars { display:flex; flex-direction:column; gap:14px; }
+.pillar {
+  display:flex; align-items:flex-start; gap:14px;
+  padding:18px 20px;
+  border:1px solid var(--border);
+  background:var(--panel);
+  transition:border-color 0.25s, background 0.25s;
+  position:relative; overflow:hidden;
+}
+.pillar::before {
+  content:''; position:absolute; left:0; top:0; bottom:0;
+  width:2px; background:var(--blue);
+  opacity:0; transition:opacity 0.25s;
+  box-shadow:0 0 10px var(--blue);
+}
+.pillar:hover { border-color:var(--border2); background:var(--blue-dim); }
+.pillar:hover::before { opacity:1; }
+.pillar-icon {
+  font-size:20px; flex-shrink:0; margin-top:2px;
+  width:38px; height:38px;
+  background:var(--blue-dim); border:1px solid var(--border2);
+  display:flex; align-items:center; justify-content:center;
+}
+.pillar-title { font-size:14px; font-weight:700; color:var(--white); }
+.pillar-desc { font-size:12.5px; color:var(--muted); margin-top:3px; line-height:1.65; }
+
+/* ── SERVICES ───────────────────────── */
+#services { padding:110px 0; background:var(--deep); position:relative; overflow:hidden; }
+#services::before {
+  content:''; position:absolute; top:-200px; right:-200px;
+  width:600px; height:600px;
+  background:radial-gradient(circle, rgba(59,175,255,0.06) 0%, transparent 65%);
+  pointer-events:none;
+}
+.services-head { text-align:center; margin-bottom:60px; }
+.services-head .eyebrow { justify-content:center; }
+.services-head .eyebrow::before { display:none; }
+
+.svc-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:2px; }
+.svc {
+  background:var(--panel);
+  padding:40px 32px;
+  border:1px solid var(--border);
+  position:relative; overflow:hidden;
+  transition:border-color 0.3s, transform 0.3s;
+  cursor:none;
+}
+.svc::after {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(135deg, var(--blue-dim) 0%, transparent 60%);
+  opacity:0; transition:opacity 0.35s;
+}
+.svc:hover { border-color:var(--border2); transform:translateY(-4px); }
+.svc:hover::after { opacity:1; }
+.svc.star { border-color:var(--border2); }
+.svc.star::before {
+  content:''; position:absolute; top:0; left:0; right:0;
+  height:2px; background:linear-gradient(90deg, var(--blue), var(--cyan));
+  box-shadow:0 0 12px var(--blue);
+}
+.star-badge {
+  position:absolute; top:18px; right:18px;
+  font-family:'IBM Plex Mono', monospace;
+  font-size:9px; letter-spacing:0.14em; text-transform:uppercase;
+  color:var(--void); background:var(--blue); padding:4px 10px;
+  z-index:2;
+}
+.svc-num {
+  font-family:'Bebas Neue', sans-serif;
+  font-size:52px; letter-spacing:0.05em;
+  color:rgba(59,175,255,0.1); line-height:1;
+  margin-bottom:16px; position:relative; z-index:2;
+}
+.svc-icon { font-size:28px; margin-bottom:14px; position:relative; z-index:2; }
+.svc-title {
+  font-family:'Syne', sans-serif;
+  font-size:18px; font-weight:700;
+  color:var(--white); margin-bottom:12px; line-height:1.2;
+  position:relative; z-index:2;
+}
+.svc-desc {
+  font-size:13px; line-height:1.8; color:var(--muted);
+  position:relative; z-index:2;
+}
+.svc-chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:20px; position:relative; z-index:2; }
+.chip {
+  font-family:'IBM Plex Mono', monospace;
+  font-size:9px; letter-spacing:0.12em; text-transform:uppercase;
+  color:var(--blue); border:1px solid var(--border2);
+  padding:4px 10px;
+}
+
+/* ── PROCESS ────────────────────────── */
+#process { padding:110px 0; }
+.proc-list { display:flex; flex-direction:column; }
+.proc-item {
+  display:grid; grid-template-columns:72px 1fr auto;
+  gap:32px; align-items:start;
+  padding:36px 0;
+  border-bottom:1px solid var(--border);
+  transition:background 0.2s;
+  position:relative;
+}
+.proc-item:first-child { border-top:1px solid var(--border); }
+.proc-item:hover { }
+.proc-item::before {
+  content:''; position:absolute; left:0; right:0; top:0; bottom:0;
+  background:var(--blue-dim); opacity:0;
+  transition:opacity 0.25s; pointer-events:none;
+}
+.proc-item:hover::before { opacity:1; }
+.proc-n {
+  font-family:'Bebas Neue', sans-serif;
+  font-size:44px; letter-spacing:0.05em;
+  color:rgba(59,175,255,0.2); line-height:1;
+  padding-top:4px;
+  position:relative; z-index:1;
+  transition:color 0.25s;
+}
+.proc-item:hover .proc-n { color:var(--blue); text-shadow:0 0 20px rgba(59,175,255,0.4); }
+.proc-body { position:relative; z-index:1; }
+.proc-title { font-size:20px; font-weight:700; color:var(--white); margin-bottom:8px; }
+.proc-desc { font-size:13px; line-height:1.8; color:var(--muted); }
+.proc-tag {
+  position:relative; z-index:1; align-self:center;
+  font-family:'IBM Plex Mono', monospace;
+  font-size:9px; letter-spacing:0.14em; text-transform:uppercase;
+  color:var(--blue); border:1px solid var(--border2);
+  padding:6px 14px; white-space:nowrap;
+}
+
+/* ── NICHES ─────────────────────────── */
+#niches { padding:90px 0; background:var(--deep); }
+.niches-wrap { text-align:center; }
+.niches-wrap .eyebrow { justify-content:center; }
+.niches-wrap .eyebrow::before { display:none; }
+.niche-flow { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin-top:40px; }
+.np {
+  font-family:'IBM Plex Mono', monospace;
+  font-size:11px; letter-spacing:0.1em; text-transform:uppercase;
+  padding:9px 18px; border:1px solid var(--border);
+  color:var(--faint); cursor:none;
+  transition:all 0.25s;
+}
+.np:hover, .np.lit { border-color:var(--border2); color:var(--blue); background:var(--blue-dim); }
+.np.lit { box-shadow:0 0 16px rgba(59,175,255,0.12); }
+
+/* ── CONTACT ────────────────────────── */
+#contact { padding:110px 0; position:relative; overflow:hidden; }
+#contact::before {
+  content:''; position:absolute; bottom:-200px; left:-200px;
+  width:700px; height:700px;
+  background:radial-gradient(circle, rgba(59,175,255,0.07) 0%, transparent 65%);
+  pointer-events:none;
+}
+.contact-grid { display:grid; grid-template-columns:1fr 1fr; gap:80px; }
+
+.contact-title {
+  font-family:'Bebas Neue', sans-serif;
+  font-size:clamp(40px, 5vw, 64px);
+  letter-spacing:0.03em; line-height:1.0;
+  color:var(--white); margin-top:8px;
+}
+.contact-title span { color:var(--blue); text-shadow:0 0 30px rgba(59,175,255,0.4); }
+.contact-sub { font-size:14px; line-height:1.8; color:var(--muted); margin-top:16px; max-width:360px; }
+
+.channels { margin-top:36px; display:flex; flex-direction:column; gap:10px; }
+.ch {
+  display:flex; align-items:center; gap:14px;
+  padding:14px 18px; border:1px solid var(--border);
+  text-decoration:none; color:var(--muted);
+  font-size:13.5px; transition:all 0.25s; cursor:none;
+  background:var(--panel);
+  position:relative; overflow:hidden;
+}
+.ch::before {
+  content:''; position:absolute; left:0; top:0; bottom:0;
+  width:2px; background:var(--blue);
+  opacity:0; transition:opacity 0.25s;
+  box-shadow:0 0 10px var(--blue);
+}
+.ch:hover { border-color:var(--border2); color:var(--white); background:var(--blue-dim); }
+.ch:hover::before { opacity:1; }
+.ch-ico {
+  width:36px; height:36px; background:var(--blue-dim); border:1px solid var(--border2);
+  display:flex; align-items:center; justify-content:center;
+  font-size:16px; flex-shrink:0;
+}
+.ch-type {
+  font-family:'IBM Plex Mono', monospace;
+  font-size:9px; letter-spacing:0.18em; text-transform:uppercase;
+  color:var(--blue); display:block; margin-bottom:2px;
+}
+.ch-val { color:var(--white); font-weight:600; font-size:13px; }
+
+/* Form */
+.form { display:flex; flex-direction:column; gap:14px; }
+.frow { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.field { display:flex; flex-direction:column; gap:7px; }
+.field label {
+  font-family:'IBM Plex Mono', monospace;
+  font-size:9px; letter-spacing:0.18em; text-transform:uppercase;
+  color:var(--blue);
+}
+.field input, .field select, .field textarea {
+  background:var(--panel);
+  border:1px solid var(--border);
+  color:var(--white);
+  font-family:'Syne', sans-serif;
+  font-size:13.5px; font-weight:400;
+  padding:12px 16px;
+  outline:none; resize:none;
+  transition:border-color 0.2s, box-shadow 0.2s;
+  cursor:none;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color:var(--blue);
+  box-shadow:0 0 0 3px rgba(59,175,255,0.1);
+}
+.field textarea { height:108px; }
+.field select option { background:var(--panel); }
+.form-btn {
+  background:var(--blue); color:var(--void);
+  font-family:'IBM Plex Mono', monospace;
+  font-size:11px; letter-spacing:0.16em; text-transform:uppercase;
+  font-weight:500;
+  border:none; padding:15px 36px;
+  cursor:none; align-self:flex-start;
+  display:inline-flex; align-items:center; gap:10px;
+  transition:all 0.25s;
+  box-shadow:0 0 20px rgba(59,175,255,0.25);
+}
+.form-btn:hover {
+  background:var(--cyan);
+  box-shadow:0 0 40px rgba(59,175,255,0.45);
+  transform:translateY(-2px);
+}
+
+/* ── FOOTER ─────────────────────────── */
+footer {
+  padding:32px 0;
+  border-top:1px solid var(--border);
+  position:relative; z-index:2;
+}
+.footer-inner { display:flex; justify-content:space-between; align-items:center; }
+.footer-logo {
+  font-family:'Bebas Neue', sans-serif;
+  font-size:20px; letter-spacing:0.1em; color:var(--white);
+}
+.footer-logo span { color:var(--blue); }
+.footer-copy {
+  font-family:'IBM Plex Mono', monospace;
+  font-size:10px; letter-spacing:0.12em;
+  color:var(--faint); text-transform:uppercase;
+}
+.footer-links { display:flex; gap:24px; }
+.footer-links a {
+  font-family:'IBM Plex Mono', monospace;
+  font-size:10px; letter-spacing:0.12em; text-transform:uppercase;
+  color:var(--faint); text-decoration:none;
+  transition:color 0.2s;
+}
+.footer-links a:hover { color:var(--blue); }
+
+/* ── KEYFRAMES ──────────────────────── */
+@keyframes up {
+  from { opacity:0; transform:translateY(22px); }
+  to   { opacity:1; transform:none; }
+}
+
+/* ── RESPONSIVE ─────────────────────── */
+@media(max-width:1024px) {
+  .hero-grid { grid-template-columns:1fr; }
+  .hero-photo-card { max-width:420px; }
+  .svc-grid { grid-template-columns:repeat(2,1fr); }
+  .about-grid, .contact-grid { grid-template-columns:1fr; gap:48px; }
+}
+@media(max-width:768px) {
+  header { padding:0 20px; }
+  nav a:not(.nav-cta) { display:none; }
+  .hero { padding:90px 0 60px; }
+  .hero-photo-card { display:none; }
+  .svc-grid { grid-template-columns:1fr; }
+  .proc-item { grid-template-columns:56px 1fr; }
+  .proc-tag { display:none; }
+  .frow { grid-template-columns:1fr; }
+  .footer-inner { flex-direction:column; gap:16px; text-align:center; }
+  .footer-links { justify-content:center; flex-wrap:wrap; }
+}
+</style>
+</head>
+<body>
+
+<div id="cur"></div>
+<div id="cur-ring"></div>
+
+<!-- HEADER -->
+<header id="hdr">
+  <div class="logo">
+    <div class="logo-dot"></div>
+    <span><span class="logo-kc">KC</span>TRADESANDTOKS</span>
+  </div>
+  <nav>
+    <a href="#about">About</a>
+    <a href="#services">Services</a>
+    <a href="#process">Process</a>
+    <a href="#contact" class="nav-cta">Work With Me</a>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-ring"></div>
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <div class="hero-tag">Digital Strategist · Content Architect · Growth Builder</div>
+        <h1 class="hero-title">
+          BUILD<br>
+          <span class="accent">DEMAND.</span><br>
+          STACK <span class="lit">INCOME.</span>
+        </h1>
+        <p class="hero-sub">I help brands and ambitious individuals in the financial education space engineer content systems, build audiences, and convert attention into scalable revenue — from the first video to the high-ticket backend.</p>
+        <div class="hero-btns">
+          <a href="#contact" class="btn btn-blue">Work With Me →</a>
+          <a href="#services" class="btn btn-ghost">View Services</a>
+        </div>
+        <div class="hero-metrics">
+          <div class="metric">
+            <div class="metric-val">6+</div>
+            <div class="metric-label">Core Services</div>
+          </div>
+          <div class="metric">
+            <div class="metric-val">4</div>
+            <div class="metric-label">Funnel Stages</div>
+          </div>
+          <div class="metric">
+            <div class="metric-val">NG</div>
+            <div class="metric-label">Nigeria Focused</div>
+          </div>
+          <div class="metric">
+            <div class="metric-val">∞</div>
+            <div class="metric-label">Leverage / Asset</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-photo-card">
+        <div class="photo-inner">
+          <img src="hero.jpg" alt="KCTradesAndToks — Kaizen Chris">
+          <div class="photo-overlay">
+            <div class="photo-brand"><span>KC</span>TRADESANDTOKS</div>
+            <div class="photo-tagline">Digital Strategist · Nigeria</div>
+          </div>
+          <div class="photo-corner">
+            <div class="corner-dot"></div>
+            Available Now
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="wrap">
+    <div class="about-grid">
+      <div class="reveal">
+        <div class="eyebrow">About KCTradesAndToks</div>
+        <h2 class="section-title">I don't just<br>make content.<br>I <span class="hi">engineer demand.</span></h2>
+        <div class="about-text">
+          <p>I'm Kaizen Chris — a digital strategist operating at the intersection of <strong>content creation, marketing architecture, and financial education</strong>. My work is built on a single conviction: wealth follows demand, and demand is engineered — not stumbled upon.</p>
+          <p>I run faceless YouTube and TikTok channels targeting Nigerian students and young professionals hungry for high-income digital skills. Beyond content, I design the full ecosystem: the funnel, the community, the offer stack, and the monetization engine.</p>
+          <p>The name <strong>Kaizen</strong> is intentional — continuous improvement. Every system I build compounds over time. Not a bright flash — a steady, growing fire.</p>
+        </div>
+      </div>
+      <div class="pillars reveal">
+        <div class="pillar">
+          <div class="pillar-icon">⚡</div>
+          <div>
+            <div class="pillar-title">Systems Over Tactics</div>
+            <div class="pillar-desc">I build infrastructure that keeps working — content machines, conversion funnels, community frameworks designed for the long game.</div>
+          </div>
+        </div>
+        <div class="pillar">
+          <div class="pillar-icon">🎯</div>
+          <div>
+            <div class="pillar-title">Niche-Deep Expertise</div>
+            <div class="pillar-desc">Financial education and digital skills for Nigerian youth isn't just a niche I serve — it's the market I live and operate in daily.</div>
+          </div>
+        </div>
+        <div class="pillar">
+          <div class="pillar-icon">🔗</div>
+          <div>
+            <div class="pillar-title">End-to-End Execution</div>
+            <div class="pillar-desc">From the first video script to the high-ticket coaching backend — I connect every link in the chain, or fix the one that's broken.</div>
+          </div>
+        </div>
+        <div class="pillar">
+          <div class="pillar-icon">📈</div>
+          <div>
+            <div class="pillar-title">Results Build Trust</div>
+            <div class="pillar-desc">Consistent, demonstrable financial results build trust faster than any pitch. That's the standard I hold my work to.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="wrap">
+    <div class="services-head reveal">
+      <div class="eyebrow">What I Do</div>
+      <h2 class="section-title">Six ways I build<br><span class="hi">your growth.</span></h2>
+    </div>
+    <div class="svc-grid">
+      <div class="svc star reveal">
+        <div class="star-badge">Most Requested</div>
+        <div class="svc-num">01</div>
+        <div class="svc-icon">🎬</div>
+        <div class="svc-title">Content Creation & Video Strategy</div>
+        <p class="svc-desc">Production-ready scripts for YouTube (long-form ~8 min) and TikTok (short-form ~1:43). Faceless channel setup, content calendars, and storytelling frameworks that convert viewers into buyers.</p>
+        <div class="svc-chips">
+          <span class="chip">YouTube</span><span class="chip">TikTok</span><span class="chip">Scripting</span><span class="chip">Faceless Video</span>
+        </div>
+      </div>
+      <div class="svc reveal">
+        <div class="svc-num">02</div>
+        <div class="svc-icon">🔁</div>
+        <div class="svc-title">Marketing Funnel Architecture</div>
+        <p class="svc-desc">Full-stack funnel design — cold traffic on TikTok/Meta → free Telegram community → paid tier → high-ticket coaching. Every stage engineered for trust and conversion velocity.</p>
+        <div class="svc-chips">
+          <span class="chip">TikTok Ads</span><span class="chip">Telegram</span><span class="chip">Funnel Design</span>
+        </div>
+      </div>
+      <div class="svc reveal">
+        <div class="svc-num">03</div>
+        <div class="svc-icon">🎓</div>
+        <div class="svc-title">Digital Skills Coaching</div>
+        <p class="svc-desc">Structured coaching for students breaking into high-income skills: copywriting, video editing, social media management, graphic design, AI prompting, and freelancing strategy.</p>
+        <div class="svc-chips">
+          <span class="chip">1-on-1</span><span class="chip">Community</span><span class="chip">Curriculum</span>
+        </div>
+      </div>
+      <div class="svc reveal">
+        <div class="svc-num">04</div>
+        <div class="svc-icon">📊</div>
+        <div class="svc-title">Brand & Monetization Strategy</div>
+        <p class="svc-desc">Full monetization architecture for personal brands and niche media — offer design, pricing structures, community monetization, brand voice, and positioning for the Nigerian digital economy.</p>
+        <div class="svc-chips">
+          <span class="chip">Brand Strategy</span><span class="chip">Offer Design</span><span class="chip">Positioning</span>
+        </div>
+      </div>
+      <div class="svc reveal">
+        <div class="svc-num">05</div>
+        <div class="svc-icon">🤖</div>
+        <div class="svc-title">AI-Powered Production Workflow</div>
+        <p class="svc-desc">Setting up AI-assisted video pipelines using Invideo AI, ElevenLabs, CapCut, and Canva — enabling high-output content at low overhead. Build once, publish everywhere, leverage forever.</p>
+        <div class="svc-chips">
+          <span class="chip">Invideo AI</span><span class="chip">ElevenLabs</span><span class="chip">CapCut</span><span class="chip">Canva</span>
+        </div>
+      </div>
+      <div class="svc reveal">
+        <div class="svc-num">06</div>
+        <div class="svc-icon">💡</div>
+        <div class="svc-title">Financial Education Content</div>
+        <p class="svc-desc">Specialised content strategy for the financial literacy and wealth-building niche — series concepts, community frameworks, and authority-building content that resonates with Nigerian youth.</p>
+        <div class="svc-chips">
+          <span class="chip">Fin-Ed</span><span class="chip">Nigeria Market</span><span class="chip">Authority</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section id="process">
+  <div class="wrap">
+    <div class="reveal" style="margin-bottom:52px">
+      <div class="eyebrow">How I Work</div>
+      <h2 class="section-title">A clear process.<br><span class="hi">Predictable results.</span></h2>
+    </div>
+    <div class="proc-list reveal">
+      <div class="proc-item">
+        <div class="proc-n">01</div>
+        <div class="proc-body">
+          <div class="proc-title">Understand the Goal</div>
+          <p class="proc-desc">Deep-dive into where you are, where you're going, and what's standing between the two. No templates — bespoke strategy built from your specific context and market reality.</p>
+        </div>
+        <div class="proc-tag">Discovery</div>
+      </div>
+      <div class="proc-item">
+        <div class="proc-n">02</div>
+        <div class="proc-body">
+          <div class="proc-title">Design the System</div>
+          <p class="proc-desc">From content architecture to funnel flows, I design systems that compound over time — built for leverage, not one-off wins. The goal is always: build once, earn repeatedly.</p>
+        </div>
+        <div class="proc-tag">Strategy</div>
+      </div>
+      <div class="proc-item">
+        <div class="proc-n">03</div>
+        <div class="proc-body">
+          <div class="proc-title">Execute & Produce</div>
+          <p class="proc-desc">Scripts, funnels, ad creatives, community frameworks — production-ready assets delivered for immediate deployment. Strategy without execution is fantasy.</p>
+        </div>
+        <div class="proc-tag">Execution</div>
+      </div>
+      <div class="proc-item">
+        <div class="proc-n">04</div>
+        <div class="proc-body">
+          <div class="proc-title">Iterate on Results</div>
+          <p class="proc-desc">Real-world data and feedback sharpen the system continuously. The best strategies are living documents — they compound with every iteration.</p>
+        </div>
+        <div class="proc-tag">Optimise</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NICHES -->
+<section id="niches">
+  <div class="wrap">
+    <div class="niches-wrap reveal">
+      <div class="eyebrow">Markets I Serve</div>
+      <h2 class="section-title">Niches I <span class="hi">operate in.</span></h2>
+      <div class="niche-flow">
+        <div class="np lit">Financial Education</div>
+        <div class="np lit">Digital Skills & Freelancing</div>
+        <div class="np lit">Youth Entrepreneurship (Nigeria)</div>
+        <div class="np">Personal Finance</div>
+        <div class="np">Online Business</div>
+        <div class="np">Creator Economy</div>
+        <div class="np">Wealth Building</div>
+        <div class="np">Certifications & Upskilling</div>
+        <div class="np">Side Income</div>
+        <div class="np">Social Media Growth</div>
+        <div class="np">Affiliate Marketing</div>
+        <div class="np">Remote Work</div>
+        <div class="np">TikTok Monetisation</div>
+        <div class="np">Telegram Communities</div>
+        <div class="np">High-Ticket Coaching</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="wrap">
+    <div class="contact-grid">
+      <div class="reveal">
+        <div class="eyebrow">Let's Build Together</div>
+        <h2 class="contact-title">READY TO<br><span>ENGINEER</span><br>DEMAND?</h2>
+        <p class="contact-sub">Whether you need a funnel built, content scripted, skills coached, or a complete strategy session — reach out. Let's figure out if we're the right fit.</p>
+
+        <div class="channels">
+          <a href="mailto:chrissoreadagency@gmail.com" class="ch">
+            <div class="ch-ico">✉️</div>
+            <div>
+              <span class="ch-type">Email</span>
+              <div class="ch-val">chrissoreadagency@gmail.com</div>
+            </div>
+          </a>
+          <a href="https://t.me/KcTradesandToks" class="ch" target="_blank">
+            <div class="ch-ico">✈️</div>
+            <div>
+              <span class="ch-type">Telegram</span>
+              <div class="ch-val">@KcTradesandToks</div>
+            </div>
+          </a>
+          <a href="https://twitter.com/christrades_tok" class="ch" target="_blank">
+            <div class="ch-ico">🐦</div>
+            <div>
+              <span class="ch-type">Twitter / X</span>
+              <div class="ch-val">@christrades_tok</div>
+            </div>
+          </a>
+          <a href="https://wa.me/2347031379047" class="ch" target="_blank">
+            <div class="ch-ico">💬</div>
+            <div>
+              <span class="ch-type">WhatsApp</span>
+              <div class="ch-val">+234 703 137 9047</div>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <div class="reveal">
+        <div class="form">
+          <div class="frow">
+            <div class="field">
+              <label>First Name</label>
+              <input type="text" placeholder="John">
+            </div>
+            <div class="field">
+              <label>Last Name</label>
+              <input type="text" placeholder="Doe">
+            </div>
+          </div>
+          <div class="field">
+            <label>Email Address</label>
+            <input type="email" placeholder="you@example.com">
+          </div>
+          <div class="field">
+            <label>What Do You Need?</label>
+            <select>
+              <option value="">— Select a service —</option>
+              <option>Content Creation & Video Strategy</option>
+              <option>Marketing Funnel Architecture</option>
+              <option>Digital Skills Coaching</option>
+              <option>Brand & Monetization Strategy</option>
+              <option>AI-Powered Production Workflow</option>
+              <option>Financial Education Content</option>
+              <option>Strategy Session / Let's Talk</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Tell Me About Your Project</label>
+            <textarea placeholder="What are you building, where are you stuck, what does success look like?"></textarea>
+          </div>
+          <button class="form-btn" onclick="sendMsg(this)">Send Message <span>→</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="footer-inner">
+      <div class="footer-logo"><span>KC</span>TRADESANDTOKS</div>
+      <div class="footer-links">
+        <a href="#about">About</a>
+        <a href="#services">Services</a>
+        <a href="#process">Process</a>
+        <a href="#contact">Contact</a>
+      </div>
+      <div class="footer-copy">© 2026 KCTradesAndToks. All rights reserved.</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Cursor
+const cur = document.getElementById('cur');
+const ring = document.getElementById('cur-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cur.style.left = mx+'px'; cur.style.top = my+'px';
+});
+(function animRing(){
+  rx += (mx-rx)*0.1; ry += (my-ry)*0.1;
+  ring.style.left=rx+'px'; ring.style.top=ry+'px';
+  requestAnimationFrame(animRing);
+})();
+document.querySelectorAll('a,button,.svc,.pillar,.np,.ch').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{ ring.style.width='52px'; ring.style.height='52px'; ring.style.borderColor='rgba(59,175,255,0.7)'; });
+  el.addEventListener('mouseleave',()=>{ ring.style.width='32px'; ring.style.height='32px'; ring.style.borderColor='rgba(59,175,255,0.35)'; });
+});
+
+// Header
+const hdr = document.getElementById('hdr');
+window.addEventListener('scroll', ()=> hdr.classList.toggle('stuck', scrollY>30));
+
+// Reveal
+const obs = new IntersectionObserver(entries=>{
+  entries.forEach((e,i)=>{ if(e.isIntersecting){ setTimeout(()=>e.target.classList.add('on'),i*70); obs.unobserve(e.target); } });
+},{threshold:0.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+// Form
+function sendMsg(btn){
+  const orig = btn.innerHTML;
+  btn.innerHTML = '✓ Sent!'; btn.style.background='#00d4ff';
+  btn.disabled=true;
+  setTimeout(()=>{ btn.innerHTML=orig; btn.style.background=''; btn.disabled=false; },3000);
+}
+</script>
+</body>
+</html>
