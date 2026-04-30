@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>90-Day Financial Education Empire</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#06080a;--surface:#0c0f12;--surface2:#111518;
+  --border:#181d22;--border2:#1e252c;
+  --text:#dde4ec;--muted:#4a5568;--dim:#252d36;
+  --gold:#c9a84c;--gold-dim:#c9a84c18;--gold-border:#c9a84c30;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+
+/* GRAIN */
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:999;opacity:.5}
+
+.container{max-width:780px;margin:0 auto;position:relative;z-index:1}
+
+/* HERO */
+.hero{padding:48px 32px 36px;border-bottom:1px solid var(--border)}
+.hero-tag{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.25em;color:var(--gold);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.hero-tag::after{content:'';flex:1;height:1px;background:var(--gold-border)}
+h1{font-family:'Playfair Display',serif;font-size:clamp(28px,6vw,48px);font-weight:900;line-height:1.08;color:#f0f4f8;margin-bottom:8px;letter-spacing:-.02em}
+h1 span{color:var(--gold)}
+.hero-sub{font-size:14px;color:#5a6a7a;font-style:italic;margin-bottom:24px}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:4px;overflow:hidden}
+.stat{background:var(--surface);padding:14px 16px}
+.stat-val{font-family:'IBM Plex Mono',monospace;font-size:clamp(16px,3vw,20px);font-weight:600;color:var(--gold);line-height:1;margin-bottom:4px}
+.stat-lbl{font-size:11px;color:var(--muted)}
+
+/* PHASE NAV */
+.phase-nav{display:flex;gap:6px;padding:16px 32px;border-bottom:1px solid var(--border);flex-wrap:wrap;background:var(--bg);position:sticky;top:0;z-index:50;backdrop-filter:blur(8px)}
+.p-btn{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:8px 14px;border-radius:3px;border:1px solid;cursor:pointer;transition:all .18s ease;white-space:nowrap}
+.p-btn:hover{transform:translateY(-1px)}
+
+/* PHASE WRAPPER */
+.phase-wrap{display:none}
+.phase-wrap.active{display:block;animation:slideIn .3s ease both}
+
+/* PHASE HEADER */
+.p-head{padding:28px 32px 22px;border-bottom:1px solid var(--border)}
+.p-meta{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.p-badge{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.18em;text-transform:uppercase;padding:4px 10px;border-radius:2px;border:1px solid}
+.p-dur{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.1em}
+.p-title{font-family:'Playfair Display',serif;font-size:clamp(22px,4vw,32px);font-weight:700;color:#f0f4f8;margin-bottom:4px;letter-spacing:-.01em}
+.p-tagline{font-size:13px;color:#5a6a7a;font-style:italic;margin-bottom:18px;font-family:'Playfair Display',serif}
+.goal-block{padding:14px 18px;border-radius:3px;border-left-width:3px;border-left-style:solid;border-top:1px solid;border-right:1px solid;border-bottom:1px solid;font-size:13px;color:#a0aab4;line-height:1.7}
+.goal-lbl{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.15em;margin-right:8px;text-transform:uppercase}
+
+/* REVENUE PROJECTION */
+.rev-block{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border-bottom:1px solid var(--border)}
+.rev-cell{background:var(--surface);padding:14px 18px;border-right:1px solid var(--border2)}
+.rev-cell:last-child{border-right:none}
+.rev-label{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.rev-val{font-family:'Playfair Display',serif;font-size:clamp(15px,3vw,20px);font-weight:700;color:#f0f4f8;margin-bottom:2px}
+.rev-sub{font-size:11px;color:var(--muted)}
+
+/* TARGETS */
+.targets-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--border);border-bottom:1px solid var(--border)}
+.tgt{background:var(--surface2);padding:15px 18px}
+.tgt-val{font-family:'IBM Plex Mono',monospace;font-size:clamp(16px,3.5vw,22px);font-weight:600;line-height:1;margin-bottom:4px}
+.tgt-lbl{font-size:12px;color:#c0ccd8;font-weight:500;margin-bottom:2px}
+.tgt-sub{font-size:11px;color:var(--muted);font-style:italic}
+
+/* INNER TABS */
+.i-tabs{display:flex;padding:0 32px;border-bottom:1px solid var(--border)}
+.i-tab{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;background:transparent;border:none;border-bottom:2px solid transparent;padding:13px 14px 11px;cursor:pointer;color:var(--muted);transition:all .18s}
+.i-tab.active{border-bottom-color:currentColor}
+.i-tab:hover{color:#8899aa}
+
+/* PANELS */
+.t-panel{display:none;padding:22px 32px 44px}
+.t-panel.active{display:block;animation:fadeUp .28s ease both}
+
+/* SECTION HEADS */
+.sec-head{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+
+/* TASK ITEMS */
+.task{display:flex;gap:14px;padding:13px 15px;background:var(--surface);border:1px solid var(--border);border-radius:3px;margin-bottom:8px;align-items:flex-start;transition:border-color .18s}
+.task:hover{border-color:var(--border2)}
+.task-day{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.05em;min-width:62px;text-align:right;padding-top:2px;flex-shrink:0;line-height:1.4}
+.task-line{width:1px;align-self:stretch;min-height:14px;flex-shrink:0;opacity:.3}
+.task-body{flex:1}
+.task-text{font-size:13px;color:#b0bec8;line-height:1.65;margin-bottom:0}
+.task-tip{font-size:11px;color:var(--muted);font-style:italic;margin-top:5px;padding-top:5px;border-top:1px solid var(--border);line-height:1.5}
+.task-kpi{display:inline-block;margin-top:6px;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.08em;padding:2px 8px;border-radius:2px;border:1px solid}
+
+/* CONTENT ANGLES */
+.angle-grid{display:grid;grid-template-columns:repeat(1,1fr);gap:8px;margin-bottom:20px}
+.angle{padding:12px 15px;background:var(--surface);border:1px solid var(--border);border-radius:3px;transition:border-color .18s}
+.angle:hover{border-color:var(--border2)}
+.angle-num{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:4px}
+.angle-title{font-size:13px;color:#c0ccd8;font-weight:500;margin-bottom:3px}
+.angle-hook{font-size:12px;color:var(--muted);font-style:italic}
+
+/* TOOLS */
+.tool{display:grid;grid-template-columns:1fr auto;gap:12px;padding:13px 15px;background:var(--surface);border:1px solid var(--border);border-radius:3px;margin-bottom:8px;align-items:center;transition:border-color .18s}
+.tool:hover{border-color:var(--border2)}
+.tool-name{font-size:14px;color:#d0dae4;font-weight:600;margin-bottom:3px}
+.tool-use{font-size:12px;color:var(--muted)}
+.tool-cost{display:inline-block;padding:3px 9px;border-radius:2px;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.06em;border:1px solid;margin-bottom:5px}
+.tool-link{font-family:'IBM Plex Mono',monospace;font-size:9px;color:#333;display:block;text-align:right}
+
+/* MILESTONES */
+.ms{display:flex;gap:13px;padding:13px 15px;background:var(--surface);border:1px solid var(--border);border-radius:3px;margin-bottom:8px;align-items:flex-start;transition:border-color .18s}
+.ms:hover{border-color:var(--border2)}
+.ms-check{width:22px;height:22px;border-radius:2px;border:2px solid;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:9px;flex-shrink:0;margin-top:1px}
+.ms-body{flex:1}
+.ms-text{font-size:13px;color:#b0bec8;line-height:1.55;margin-bottom:3px}
+.ms-metric{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted)}
+.ms-note{margin-top:14px;padding:13px 15px;border-radius:3px;font-size:12px;color:var(--muted);font-style:italic;line-height:1.65}
+
+/* PRICING TABLE */
+.price-table{width:100%;border-collapse:collapse;margin-bottom:20px}
+.price-table th{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);background:var(--surface)}
+.price-table td{font-size:13px;color:#b0bec8;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--surface2)}
+.price-table td:first-child{color:#d0dae4;font-weight:500}
+.price-table .highlight td{background:var(--surface)}
+
+/* FORMULA BOX */
+.formula{padding:16px 18px;border-radius:3px;margin-bottom:16px;border:1px solid}
+.formula-label{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.15em;text-transform:uppercase;margin-bottom:8px}
+.formula-eq{font-family:'IBM Plex Mono',monospace;font-size:13px;color:#d0dae4;line-height:1.8}
+.formula-result{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;margin-top:8px}
+
+/* NAV FOOTER */
+.nav-foot{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--border);padding:13px 32px;display:flex;justify-content:space-between;align-items:center;z-index:50}
+.n-btn{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.1em;background:transparent;border:1px solid var(--dim);color:var(--muted);padding:8px 16px;border-radius:3px;cursor:pointer;transition:all .18s}
+.n-btn:hover:not(:disabled){border-color:#3a4a5a;color:#8899aa}
+.n-btn:disabled{color:var(--dim);cursor:not-allowed}
+.n-btn.next{font-weight:600}
+.n-count{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#2a3540;letter-spacing:.12em}
+
+@keyframes slideIn{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:translateX(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+@media(max-width:520px){
+  .hero,.p-head,.phase-nav,.i-tabs,.t-panel,.nav-foot{padding-left:18px;padding-right:18px}
+  .stats-row,.rev-block{grid-template-columns:repeat(2,1fr)}
+  .targets-grid{grid-template-columns:1fr 1fr}
+  .task-day{min-width:52px;font-size:8px}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">90-Day System · Financial Education Niche · Zero Budget</div>
+  <h1>Build a <span>₦500k/month</span><br>Financial Education<br>Empire from Scratch</h1>
+  <div class="hero-sub">Engineered for the disciplined. No shortcuts. No noise. Only output.</div>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-val">₦0</div><div class="stat-lbl">Starting budget</div></div>
+    <div class="stat"><div class="stat-val">90 days</div><div class="stat-lbl">Full timeline</div></div>
+    <div class="stat"><div class="stat-val">1–3 hrs</div><div class="stat-lbl">Daily input</div></div>
+  </div>
+</div>
+
+<!-- PHASE NAV -->
+<div class="phase-nav" id="phaseNav"></div>
+
+<!-- PHASE CONTENT -->
+<div id="phaseContents"></div>
+
+<!-- FOOTER NAV -->
+<div class="nav-foot">
+  <button class="n-btn" id="prevBtn" onclick="nav(-1)" disabled>← PREV</button>
+  <div class="n-count" id="navCount">1 / 4</div>
+  <button class="n-btn next" id="nextBtn" onclick="nav(1)">NEXT →</button>
+</div>
+
+</div><!-- /container -->
+
+<script>
+const C = {
+  gold:'#c9a84c', green:'#3d9970', orange:'#e07b39', purple:'#8b6fc7',
+  goldD:'#c9a84c18', greenD:'#3d997018', orangeD:'#e07b3918', purpleD:'#8b6fc718',
+  goldB:'#c9a84c30', greenB:'#3d997030', orangeB:'#e07b3930', purpleB:'#8b6fc730',
+};
+
+const phases = [
+{
+  id:1, label:'Phase 1', title:'The Machine',
+  duration:'Days 1–21', tagline:'Build the content engine before you need it.',
+  color:C.gold, dim:C.goldD, border:C.goldB,
+  goal:'By Day 21: YouTube channel live with 6 videos, TikTok with 15 posts, free Telegram with 50+ members. The machine is running before anyone pays you anything.',
+  rev:[
+    {label:'Revenue This Phase', val:'₦0', sub:'intentional — build first'},
+    {label:'Asset Being Built', val:'Audience', sub:'your future ATM'},
+    {label:'Phase ROI', val:'∞', sub:'zero cost, future income'},
+  ],
+  targets:[
+    {val:'21 days', lbl:'Completion Deadline', sub:'non-negotiable'},
+    {val:'6 videos', lbl:'YouTube Output', sub:'2 per week minimum'},
+    {val:'15 posts', lbl:'TikTok Output', sub:'daily the first 15 days'},
+    {val:'50+ members', lbl:'Free Telegram', sub:'before Phase 2 begins'},
+  ],
+  tasks:[
+    {day:'Day 1', text:'Register YouTube channel. Name formula: [Word] + Finance Nigeria. Examples: ClearFinance Nigeria, WealthCode Nigeria, MoneyMind NG. Pick one. Done.', tip:'Spend max 30 mins on naming. Perfectionism kills momentum.', kpi:'Channel live by end of day'},
+    {day:'Day 1', text:'Register TikTok with the same brand name. Set up bio: "Financial education for Nigerian students & young professionals. Free community → link in bio."', tip:'Use your phone. No studio needed. The algorithm rewards frequency not production value.', kpi:'Account active same day'},
+    {day:'Day 2', text:'Create Telegram free group. Pin a welcome message: "Welcome to [Channel Name] — Nigeria\'s fastest-growing financial education community. Here you get: weekly money breakdowns, earning strategies, live Q&As. Invite a friend who needs this."', tip:'Seed with 5–10 friends manually. Every group starts at zero.', kpi:'Group live + 10 seed members'},
+    {day:'Day 2–3', text:'Open Invideo AI (free plan). Create Video 1: "Why 90% of Nigerian Students Stay Broke After School (And How to Escape)." Use their AI script feature. Pick a professional avatar or text-on-screen style.', tip:'Finance content performs best with data, specific numbers, and relatable pain points.', kpi:'First video exported'},
+    {day:'Day 3', text:'Edit in CapCut. Add captions (auto-caption feature). Add a text overlay at 0:15: "Save this — you\'ll need it." Export 1080p for YouTube, 9:16 version for TikTok.', tip:'The "save this" prompt trains the algorithm to boost your reach.', kpi:'Two versions exported'},
+    {day:'Day 4', text:'Upload to YouTube. Title: "Why 90% of Nigerian Students Stay Broke After School (And How to Escape)" — Description: include keywords: make money Nigeria, financial education Nigeria, money skills Nigeria. Tag: financial education, Nigeria, students, money.', tip:'YouTube SEO is free traffic. Every description matters.', kpi:'Video live on YouTube'},
+    {day:'Day 4', text:'Post TikTok version. Hashtags: #NigeriaFinance #MoneyTipsNigeria #NigerianStudents #FinancialFreedomNigeria #HowToMakeMoneyNigeria. Post between 7–9pm.', tip:'Evening posts perform 40% better in Nigerian time zones.', kpi:'TikTok live, track first 24hr views'},
+    {day:'Day 5–7', text:'Video 2: "The 5 Income Streams Every Nigerian Under 30 Should Build." Same production workflow. Upload + post. Share in Telegram group.', kpi:'2 videos live across both platforms'},
+    {day:'Day 8–10', text:'Video 3: "How to Make Your First ₦50,000 Online — No Capital Needed." This is your hook video. Strong thumbnail: bold number + shocked face emoji. This video should drive Telegram joins.', tip:'End with: "I break this down step by step in my free Telegram community. Link in bio."', kpi:'Telegram link in every bio + description'},
+    {day:'Day 11–13', text:'Video 4: "The Truth About Poverty in Nigeria Nobody Talks About." Controversial + educational = high shares. Use facts and data. Cite CBN, NBS statistics for credibility.', tip:'Data + controversy = shares. Shares = free distribution.', kpi:'Track share rate on this video specifically'},
+    {day:'Day 14', text:'Post a Telegram-only resource: "Free PDF: 10 Financial Mistakes Killing Your Future (And How to Fix Each One)." Create this in Canva — 10 slides, export as PDF. This gives people a reason to stay in the group.', tip:'Value drops in Telegram increase retention and word-of-mouth joins.', kpi:'PDF created + posted in group'},
+    {day:'Day 15–17', text:'Video 5: "I Tracked Every Naira I Spent for 30 Days — Here\'s What I Found." Personal finance tracking content performs extremely well. Create a fake budget example if needed.', kpi:'5 videos live total'},
+    {day:'Day 18–19', text:'Spend one full session studying your analytics. Which video has the highest watch time? Highest saves? Most comments? Note the topic and format. Replicate it.', tip:'Data > instinct. Always. Let the numbers tell you what to make next.', kpi:'Written list of top 3 performing content types'},
+    {day:'Day 20–21', text:'Video 6: Double down on your best performer. Same topic category, different angle. This is how you build a content flywheel.', kpi:'6 videos live. Phase 1 complete. Do not advance without 50 Telegram members.'},
+  ],
+  angles:[
+    {title:'"Why Nigerian Schools Teach You to Be an Employee"', hook:'Attack the system. Relatable rage bait with educational value.'},
+    {title:'"How I Would Build ₦100k/Month from Zero in Nigeria Today"', hook:'Aspirational + practical. High saves and shares.'},
+    {title:'"The Real Reason Your Parents Are Broke (It\'s Not Their Fault)"', hook:'Emotional + educational. Drives comments and discussion.'},
+    {title:'"7 Money Rules They Only Teach Rich Kids in Nigeria"', hook:'"Insider knowledge" framing. Extremely shareable.'},
+    {title:'"I Invested ₦10,000 for 30 Days — Here\'s Exactly What Happened"', hook:'Experiment format. High curiosity-click rate.'},
+    {title:'"The Difference Between How Rich and Poor Nigerians Think About Money"', hook:'Comparison content. Easy to follow, easy to share.'},
+    {title:'"How to Save ₦50,000 on a ₦100,000 Salary in Nigeria"', hook:'Specific, practical, solves a real pain point.'},
+    {title:'"Why Crypto Is Not Your Way Out (And What Actually Is)"', hook:'Counter-narrative. Generates debate = more engagement.'},
+    {title:'"The Side Hustle Every Nigerian Student Can Start This Weekend"', hook:'"This weekend" creates urgency. High action intent.'},
+    {title:'"Compound Interest Explained with Naira (The Math That Changes Everything)"', hook:'Educational + mind-blowing. High save rate.'},
+  ],
+  tools:[
+    {name:'Invideo AI', use:'AI-powered video creation — script to video in 10 mins', cost:'Free plan (10 videos/mo)', link:'invideo.io'},
+    {name:'CapCut', use:'Edit, caption, resize for TikTok/YouTube Shorts', cost:'Free', link:'capcut.com'},
+    {name:'Canva', use:'Thumbnails, PDF resources, brand graphics', cost:'Free plan', link:'canva.com'},
+    {name:'ElevenLabs', use:'AI voiceover — professional voice for faceless videos', cost:'Free (10k chars/mo)', link:'elevenlabs.io'},
+    {name:'Telegram', use:'Free community hub — your owned audience', cost:'Free', link:'telegram.org'},
+    {name:'TikTok', use:'Primary short-form distribution — fastest organic reach in Nigeria', cost:'Free', link:'tiktok.com'},
+    {name:'YouTube', use:'Long-form + SEO — compounds over time', cost:'Free', link:'youtube.com'},
+    {name:'Claude / ChatGPT', use:'Script writing, content ideas, hook generation', cost:'Free tier', link:'claude.ai'},
+    {name:'Google Trends', use:'Find what financial topics Nigerians are searching right now', cost:'Free', link:'trends.google.com'},
+    {name:'TikTok Analytics', use:'Track views, saves, shares per video — built in', cost:'Free (built-in)', link:'tiktok.com'},
+  ],
+  milestones:[
+    {text:'YouTube channel live with channel art, bio, and first video uploaded', metric:'Day 4 deadline'},
+    {text:'TikTok account set up, first 3 posts live, bio with Telegram link', metric:'Day 5 deadline'},
+    {text:'Free Telegram group active with pinned welcome message', metric:'Day 3 deadline'},
+    {text:'6 complete videos published on YouTube', metric:'By Day 21'},
+    {text:'15 TikTok posts published (same videos + extra short clips)', metric:'By Day 21'},
+    {text:'Free Telegram group at 50+ members', metric:'Minimum to advance'},
+    {text:'Top 3 performing content types identified from analytics', metric:'Day 19 task complete'},
+    {text:'One free PDF resource created and distributed in Telegram', metric:'Day 14 task complete'},
+  ],
+},
+{
+  id:2, label:'Phase 2', title:'The Compounding',
+  duration:'Days 22–50', tagline:'Volume is the only strategy that works in this game.',
+  color:C.green, dim:C.greenD, border:C.greenB,
+  goal:'By Day 50: 500+ free Telegram members, 25+ videos total, consistent 4x/week posting rhythm, first signs of viral reach on at least one video. The machine is now running on momentum.',
+  rev:[
+    {label:'Revenue This Phase', val:'₦0–₦15k', sub:'optional early monetization'},
+    {label:'Audience Target', val:'500 members', sub:'Telegram by Day 50'},
+    {label:'Video Output', val:'25+ total', sub:'cumulative across platforms'},
+  ],
+  targets:[
+    {val:'4–5x/wk', lbl:'Posting Frequency', sub:'non-negotiable rhythm'},
+    {val:'500', lbl:'Free Telegram Members', sub:'gate to Phase 3'},
+    {val:'25+ videos', lbl:'Total Content', sub:'by end of Phase 2'},
+    {val:'1 viral', lbl:'Breakthrough Video', sub:'100k+ views target'},
+  ],
+  tasks:[
+    {day:'Day 22–24', text:'Batch produce 3 videos in one sitting. Topic cluster: savings. Video A: "How to Save When You Earn Almost Nothing." Video B: "The 50/30/20 Rule — Does It Work in Nigeria?" Video C: "Why Saving Alone Will Never Make You Rich."', tip:'Batching removes the daily decision of "what do I make today." Capricorns thrive on systems not spontaneity.', kpi:'3 videos queued'},
+    {day:'Day 24', text:'Schedule all 3 videos across TikTok and YouTube using TikTok\'s built-in scheduler and YouTube Studio\'s schedule feature. Set for Tuesday, Thursday, Saturday — 7:30pm each.', tip:'Consistency of timing trains your audience. They start expecting you.', kpi:'Posts scheduled 1 week in advance'},
+    {day:'Day 25', text:'Write and post Telegram content: "5 Savings Accounts in Nigeria With the Highest Interest Rates Right Now (2024 Updated)." Research PiggyVest, Cowrywise, Kuda, GTBank, and Opay rates. Post as a thread.', tip:'Practical, researched content gets shared aggressively in Nigerian WhatsApp groups.', kpi:'Post shared at least 10 times'},
+    {day:'Day 26–28', text:'Produce your first "series" content: "Financial Freedom in 30 Days — Day 1." Commit to posting one tip per day in Telegram for 30 days. Announce it to the group.', tip:'Series content locks in daily engagement and dramatically reduces member exits.', kpi:'Day 1 post live, series announced'},
+    {day:'Day 29–31', text:'Video cluster: investing. "How to Invest ₦5,000 in Nigeria." "Dollar-Cost Averaging Explained in Naira." "Is PiggyVest Actually Safe? My Honest Review." Upload, post, schedule.', tip:'Reviews and honest takes generate trust faster than educational content alone.', kpi:'3 more videos live'},
+    {day:'Day 32', text:'Cross-promotion push. DM 10 Nigerian financial content creators on TikTok. Message: "Hey [Name], love your content. I run a financial education community — would love to collab or shout each other out." 2 will respond. 1 will follow through.', tip:'One collab can bring 1,000 followers overnight. Initiate — don\'t wait.', kpi:'10 DMs sent, track responses'},
+    {day:'Day 33–35', text:'Analyse Week 2 analytics across both platforms. What is your single best-performing video? What is the hook (first 3 seconds)? What is the format? Make 3 more videos using the exact same hook structure and format.', kpi:'3 replicated-format videos produced'},
+    {day:'Day 36–38', text:'Video cluster: debt and hustle. "How to Get Out of Debt in Nigeria." "3 Side Hustles That Pay ₦50k+ Monthly." "Stop Being Broke — This Is Why You Are." Post all three.', kpi:'Cumulative: 18+ videos total'},
+    {day:'Day 39', text:'Post a Telegram poll: "What financial topic do you want me to cover next?" Give 5 options. Use the top answer for your next 2 videos. Reply to every comment for 24 hours.', tip:'Polls increase group activity. Active groups get more organic members through Telegram\'s recommended groups.', kpi:'20+ poll responses'},
+    {day:'Day 40–42', text:'Produce and post your most ambitious video yet: a 10-minute YouTube breakdown. "The Complete Guide to Building Wealth in Nigeria on Any Income." This is your pillar content — promote it in Telegram, in your bio, everywhere.', tip:'Pillar content builds authority. Authority is why people pay premium prices later.', kpi:'10-min video live, 200+ views in 48 hrs'},
+    {day:'Day 43–45', text:'Video cluster: mindset and psychology. "The Mindset Keeping Nigerians Poor." "Why Smart People Stay Broke in Nigeria." "Money Psychology Explained for Nigerians." These drive comments and shares more than pure finance content.', kpi:'3 more videos. 22+ total'},
+    {day:'Day 46–48', text:'Post a Telegram-exclusive resource: "The Nigerian Student Money Playbook — Free Guide." 15-slide Canva PDF covering: budgeting, savings, first investment, first income stream. This is your highest-value free offer yet.', tip:'Give your best content for free. It builds trust so deep that paid conversion becomes effortless.', kpi:'PDF shared + minimum 20 new Telegram members join from it'},
+    {day:'Day 49–50', text:'Final audit: Count total videos, Telegram members, average views. If under 500 Telegram members, do not advance. Post 5 pieces of content that week. DM 20 people personally inviting them to the group.', tip:'The 500-member mark is not arbitrary. Below it, your paid conversion numbers will disappoint. Above it, they compound.', kpi:'500 members confirmed before Phase 3'},
+  ],
+  angles:[
+    {title:'"How PiggyVest, Cowrywise and Kuda Actually Work — Honest Breakdown"', hook:'Platform reviews get trusted shares. High credibility signal.'},
+    {title:'"I Asked 10 Wealthy Nigerians How They Started — Here\'s What They Said"', hook:'Social proof by proxy. Aspirational and actionable.'},
+    {title:'"The Salary Trap: Why a Good Job Is Not a Financial Plan"', hook:'Challenges prevailing belief. High comment generation.'},
+    {title:'"How to Turn ₦20,000 Into a Business in Nigeria (Step by Step)"', hook:'Specific entry point. Extremely high action intent.'},
+    {title:'"What the CBN Doesn\'t Want Nigerians to Know About Inflation"', hook:'Mild controversy + authority source = viral potential.'},
+    {title:'"Dollar vs Naira: How to Protect Your Money from Devaluation"', hook:'Hyper-relevant to Nigeria right now. High saves.'},
+    {title:'"3 Apps Nigerian Students Sleep On That Pay Real Money"', hook:'"Sleep on" framing = curiosity. App content gets shared.'},
+  ],
+  tools:[
+    {name:'Invideo AI', use:'Continue batch video production', cost:'Free plan', link:'invideo.io'},
+    {name:'TikTok Scheduler', use:'Schedule 1 week of posts in advance', cost:'Free (built-in)', link:'tiktok.com'},
+    {name:'YouTube Studio', use:'Schedule uploads, track watch time + retention', cost:'Free', link:'studio.youtube.com'},
+    {name:'Canva', use:'Series graphics, PDF guides, Telegram post visuals', cost:'Free plan', link:'canva.com'},
+    {name:'ElevenLabs', use:'Batch voiceover production', cost:'Free tier', link:'elevenlabs.io'},
+    {name:'Telegram Analytics Bot', use:'Track group growth and engagement (add @TGStat_bot)', cost:'Free', link:'tgstat.com'},
+    {name:'Google Trends Nigeria', use:'Find trending financial topics weekly', cost:'Free', link:'trends.google.com'},
+    {name:'CapCut Templates', use:'Use trending audio/template for faster TikTok production', cost:'Free', link:'capcut.com'},
+  ],
+  milestones:[
+    {text:'Posting at least 4 pieces of content per week consistently for 3+ weeks', metric:'By Day 45'},
+    {text:'Free Telegram group reaches 500 members', metric:'Gate to Phase 3 — do not pass without this'},
+    {text:'25+ total videos published across YouTube and TikTok', metric:'By Day 50'},
+    {text:'At least one video crossing 10,000 views on TikTok', metric:'Proves content is working'},
+    {text:'"Financial Freedom in 30 Days" Telegram series completed', metric:'30 posts, 30 days'},
+    {text:'Second free PDF resource created and distributed', metric:'Day 46 task complete'},
+    {text:'Analytics reviewed and top-performing content type documented', metric:'Day 33–35 task'},
+    {text:'At least 1 collab outreach result — reply, follow, or mention', metric:'From Day 32 push'},
+  ],
+},
+{
+  id:3, label:'Phase 3', title:'The Money',
+  duration:'Days 51–75', tagline:'The audience is built. Now you charge for access.',
+  color:C.orange, dim:C.orangeD, border:C.orangeB,
+  goal:'By Day 75: Paid Telegram community launched at ₦5,000/month, 20+ paying members generating ₦100,000/month minimum. High-ticket offer outlined and first application form live.',
+  rev:[
+    {label:'Monthly Target', val:'₦100,000', sub:'20 members × ₦5,000'},
+    {label:'Founder Launch Price', val:'₦3,000/mo', sub:'first 20 only — create urgency'},
+    {label:'Conversion Rate', val:'3–5%', sub:'of 500 free members'},
+  ],
+  targets:[
+    {val:'20 members', lbl:'Paid Community Target', sub:'minimum viable income'},
+    {val:'₦100k/mo', lbl:'Phase Revenue Goal', sub:'from community alone'},
+    {val:'₦3k→₦5k', lbl:'Price Escalation', sub:'founder → standard'},
+    {val:'Day 55', lbl:'Launch Deadline', sub:'non-negotiable'},
+  ],
+  tasks:[
+    {day:'Day 51–52', text:'Create your paid Telegram channel (separate from the free group). Write the channel description. Template: "[Channel Name] Premium — For serious Nigerians building wealth. What you get: ✓ Weekly deep-dive money breakdowns ✓ Monthly live Q&A (voice chat) ✓ Exclusive investment opportunities & vetted platforms ✓ Direct access to me ✓ Priority answers to your money questions ✓ Monthly income challenge with accountability."', tip:'List the deliverables specifically. Vague value propositions do not convert.', kpi:'Paid channel created and ready'},
+    {day:'Day 52', text:'Set up Paystack. Create a free account. Create a payment link for ₦3,000/month labeled "Founder Access — [Channel Name] Premium." Test it with a ₦100 transaction to yourself.', tip:'Test every payment link before announcing. A broken link on launch day costs you real money.', kpi:'Payment link tested and working'},
+    {day:'Day 53', text:'Write your launch announcement for the free Telegram group. Formula: "I\'ve been giving you this for free for 2 months. The people who implement what I share deserve more. I\'m opening [Channel Name] Premium — the inner circle. For the next 72 hours, founding members get in at ₦3,000/month (normally ₦5,000). 20 spots only. Payment link below. What you get: [list]. This price closes Friday midnight." Post this at 7pm.', tip:'Scarcity + deadline + clear value = conversion. This is not manipulation — it is communication.', kpi:'Launch post live in free group'},
+    {day:'Day 54–56', text:'Follow up daily in the free group with new value + a reminder of the offer. Day 2 post: share a premium-level insight and say "This is the kind of content I share daily in the premium group." Day 3: "24 hours left. 12 spots taken. 8 remaining."', tip:'Most purchases happen on reminder 2 or 3, not announcement day. Follow-through is everything.', kpi:'3 follow-up posts done, 10+ paying members by Day 56'},
+    {day:'Day 57', text:'Close the ₦3,000 founding round. Update the payment link to ₦5,000. Post: "Founding round closed. 20 members in. Price is now ₦5,000/month for new members. Thank you for trusting me early."', tip:'Announcing the close reinforces scarcity and validates those who paid. It also creates FOMO for those who didn\'t.', kpi:'Price updated. Closed announcement posted.'},
+    {day:'Day 58–65', text:'Deliver extraordinary value in the paid channel every single day. Week 1 plan: Monday — market analysis. Wednesday — deep-dive breakdown (investment, savings, or income strategy). Friday — curated resource (tool, app, or platform review). Sunday — live voice Q&A on Telegram.', tip:'The paid community is your proof-of-concept. Its success is the testimonial that sells high-ticket.', kpi:'4 value posts + 1 live Q&A in Week 1'},
+    {day:'Day 66–68', text:'Begin running "paid community ads" inside your free group. Every 3 days post a screenshot (blur member names) of a high-value message or discussion from the paid channel. Caption: "This is what\'s happening in the premium group. You should be here."', tip:'Social proof from inside the community converts better than any sales pitch.', kpi:'3 social proof posts in free group. Track conversions.'},
+    {day:'Day 69–71', text:'Launch a monthly income challenge inside the paid community: "30-Day First ₦50k Challenge." Give members a daily task. Track their progress. Celebrate wins publicly (with permission). This becomes your most powerful testimonial engine.', kpi:'Challenge launched. 5+ members participating visibly.'},
+    {day:'Day 72–73', text:'Set up your coaching application form in Google Forms. Fields: Name, Age, Current income, Specific financial goal, What\'s blocking you, How serious are you (1–10), Can you invest ₦150,000–₦500,000 in yourself. Share form only in the paid community first.', tip:'Qualify ruthlessly. Unqualified coaching clients destroy your energy and produce no testimonials.', kpi:'Form live and tested'},
+    {day:'Day 74–75', text:'Post in both free and paid groups: "I\'m opening 3 spots for private 1-on-1 coaching this month. I work with you directly over 8 weeks to build your first or next income stream. Applications open for 48 hours. Link below." Track every application.', tip:'Exclusivity and time-limits are not pressure tactics — they are respect for your own time.', kpi:'10+ coaching applications received'},
+  ],
+  pricing:[
+    {tier:'Free Telegram Group', price:'₦0', capacity:'Unlimited', purpose:'Top of funnel — build trust'},
+    {tier:'Premium Community (Founder)', price:'₦3,000/mo', capacity:'First 20 only', purpose:'Launch mechanism — creates momentum'},
+    {tier:'Premium Community (Standard)', price:'₦5,000/mo', capacity:'Unlimited', purpose:'Core recurring revenue'},
+    {tier:'Premium Annual', price:'₦48,000/yr', capacity:'Unlimited', purpose:'₦4,000/mo — rewards commitment, improves cashflow'},
+    {tier:'1-on-1 Coaching (8 weeks)', price:'₦150k–₦500k', capacity:'3 per month max', purpose:'High-ticket — transforms financials overnight'},
+  ],
+  tools:[
+    {name:'Paystack', use:'Payment links, subscriptions, invoice generation', cost:'Free (1.5% per transaction)', link:'paystack.com'},
+    {name:'Telegram Premium Channel', use:'Gated paid community — no extra app needed', cost:'Free', link:'telegram.org'},
+    {name:'Google Forms', use:'Coaching application + member onboarding form', cost:'Free', link:'forms.google.com'},
+    {name:'Notion', use:'Content calendar, member tracker, coaching curriculum', cost:'Free plan', link:'notion.so'},
+    {name:'Opay / Moniepoint', use:'Bank transfers for members who prefer direct deposit', cost:'Free', link:'opayweb.com'},
+    {name:'Canva', use:'Paid community welcome card, social proof graphics', cost:'Free plan', link:'canva.com'},
+    {name:'Telegram Voice Chat', use:'Live Q&A sessions with paid members', cost:'Free (built-in)', link:'telegram.org'},
+  ],
+  milestones:[
+    {text:'Paid Telegram channel created with clear deliverables written out', metric:'Day 52 deadline'},
+    {text:'Paystack payment link tested and working before announcement', metric:'Day 52 deadline'},
+    {text:'Launch announcement posted in free group with 72-hour deadline', metric:'Day 53 deadline'},
+    {text:'20 paying founding members secured at ₦3,000/month', metric:'₦60,000 in recurring revenue'},
+    {text:'Price raised to ₦5,000 after founding round closes', metric:'Day 57'},
+    {text:'Week 1 premium content calendar executed: 4 posts + 1 Q&A', metric:'Quality = retention'},
+    {text:'Coaching application form live and first 10 applications received', metric:'Day 72–75'},
+    {text:'Monthly income challenge launched in paid community', metric:'Day 69–71'},
+  ],
+},
+{
+  id:4, label:'Phase 4', title:'The Ceiling',
+  duration:'Days 76–90', tagline:'One client. One conversation. Everything changes.',
+  color:C.purple, dim:C.purpleD, border:C.purpleB,
+  goal:'By Day 90: First high-ticket coaching client closed at ₦150,000 minimum. Monthly revenue exceeds ₦250,000 combining community + coaching. Entire system is systematised and documented.',
+  rev:[
+    {label:'Coaching Revenue', val:'₦150k–₦500k', sub:'per client × 1–3 clients'},
+    {label:'Community Revenue', val:'₦100k–₦150k/mo', sub:'growing monthly'},
+    {label:'Total Month 3 Target', val:'₦250k–₦650k', sub:'combined streams'},
+  ],
+  targets:[
+    {val:'1–3 clients', lbl:'Coaching Clients', sub:'this phase'},
+    {val:'₦150k min', lbl:'Per Client Revenue', sub:'target price point'},
+    {val:'3 calls', lbl:'Discovery Calls', sub:'to close 1–2 clients'},
+    {val:'Day 90', lbl:'System Documented', sub:'so it runs without you'},
+  ],
+  tasks:[
+    {day:'Day 76', text:'Write your coaching offer document. One page. Structure: (1) Who it\'s for — specific person with specific problem. (2) What they get — week by week breakdown over 8 weeks. (3) What changes — the transformation in concrete terms. (4) What it costs. (5) How to apply.', tip:'A vague offer gets a vague response. Specific offers attract specific people who pay specific prices.', kpi:'Offer document complete'},
+    {day:'Day 77', text:'Price anchoring exercise. Your 8-week program is ₦150,000–₦500,000. Frame it against the cost of not having it: "One bad financial decision costs a Nigerian ₦500k. This program prevents that and builds the opposite." Write 3 value framings you will use in discovery calls.', kpi:'3 value framings written and memorised'},
+    {day:'Day 78', text:'Post coaching announcement in paid community: "I\'m taking 3 private students in [Month]. This is for someone who is done with slow progress and wants a direct path built specifically for their situation. 8 weeks. Direct access to me. Application → [form link]. Closes in 48 hours."', tip:'Post in paid community first — these are your warmest leads. They already trust you enough to pay monthly.', kpi:'Announcement posted. Track applications hourly.'},
+    {day:'Day 79', text:'Post announcement in free Telegram group. Same message, slightly modified: add "My premium members got first access. I have 2 spots remaining. If you\'ve been watching and waiting, now is the time."', tip:'"Watching and waiting" language activates the people who lurk. They are often the most motivated.', kpi:'Second announcement live. Applications from free group tracked separately.'},
+    {day:'Day 80–81', text:'Review all applications. Score each on a 1–10 scale: seriousness, clarity of goal, financial capacity. DM the top 5 directly: "I reviewed your application. I think we\'d work well together. I have a 20-minute call I use to understand your situation before we start. When are you free this week?"', tip:'Do not pitch on the DM. Book the call. The call closes the client.', kpi:'5 DMs sent. 3+ calls booked.'},
+    {day:'Day 82–84', text:'Run discovery calls. Framework: (1) Open — "Tell me about where you are financially right now." [Listen for 5 minutes.] (2) Pain — "What has this cost you? What does it look like in 2 years if nothing changes?" (3) Bridge — "Here\'s how I would approach your situation specifically." (4) Offer — "I have a program designed exactly for this. Want me to walk you through it?" (5) Close — "Investment is ₦[X]. We can start [date]. Are you in?"', tip:'Silence after the close is not awkward — it is the prospect deciding. Do not fill it.', kpi:'3 calls completed. 1+ client closed.'},
+    {day:'Day 85', text:'Collect first coaching payment. Send an onboarding form (Google Forms): current financial situation, specific goals, available times, preferred communication style. Set up a private Telegram group for just the two of you.', kpi:'Payment received. Onboarding complete. Client relationship started.'},
+    {day:'Day 86–88', text:'Deliver Week 1 of coaching. Structure every session: (1) Review last week\'s actions + outcomes. (2) Identify the one constraint holding them back most. (3) Build a specific action plan for the next 7 days. (4) Accountability check-in commitment.', tip:'Structure builds confidence — yours and theirs. A structured coach is a trusted coach.', kpi:'Week 1 session delivered. Client taking action.'},
+    {day:'Day 88', text:'Post a community growth push. Announce to free group: "We just hit [X] members. To celebrate, I\'m doing a live financial Q&A session this week — open to everyone. Come with your toughest money questions." This drives new members and community engagement simultaneously.', kpi:'Live Q&A announced. 30+ RSVPs.'},
+    {day:'Day 89', text:'Document your entire system. Use Notion. Record: (1) Content workflow — from idea to published video. (2) Telegram growth strategy. (3) Paid community launch formula. (4) Coaching sales process. (5) Revenue by stream.', tip:'A documented system is a system you can delegate, automate, or franchise. An undocumented system only lives in your head.', kpi:'Full system documented in Notion'},
+    {day:'Day 90', text:'Day 90 audit. Record exact numbers: total videos, Telegram members (free + paid), monthly recurring revenue, coaching revenue, total unique leads generated. Set Month 4 targets. This is now a business — run it like one.', kpi:'Full audit complete. Month 4 targets set in writing.'},
+  ],
+  formula:{
+    label:'Month 3 Revenue Formula',
+    eq:'(Paid members × ₦5,000)\n+ (Annual members × ₦4,000)\n+ (Coaching clients × ₦150,000+)\n+ (YouTube AdSense — emerging)',
+    example:'20 monthly + 5 annual + 1 coaching\n= ₦100,000 + ₦20,000 + ₦150,000',
+    result:'= ₦270,000/month — from content that runs while you sleep.',
+  },
+  tools:[
+    {name:'Google Forms', use:'Coaching application + client onboarding form', cost:'Free', link:'forms.google.com'},
+    {name:'Google Meet', use:'Discovery calls + weekly coaching sessions', cost:'Free', link:'meet.google.com'},
+    {name:'WhatsApp', use:'Client communication between calls', cost:'Free', link:'whatsapp.com'},
+    {name:'Notion', use:'Coaching curriculum, client tracker, system documentation', cost:'Free plan', link:'notion.so'},
+    {name:'Paystack', use:'Coaching invoicing — send a payment link per client', cost:'Free (1.5%)', link:'paystack.com'},
+    {name:'Telegram (Private Group)', use:'1-on-1 client channel — async coaching support', cost:'Free', link:'telegram.org'},
+    {name:'Loom', use:'Record short video breakdowns for clients between sessions', cost:'Free (5 min videos)', link:'loom.com'},
+    {name:'Google Sheets', use:'Client goal tracker, revenue dashboard', cost:'Free', link:'sheets.google.com'},
+  ],
+  milestones:[
+    {text:'Coaching offer document written — specific, structured, priced', metric:'Day 76 deadline'},
+    {text:'Announcement posted in paid community with 48-hour close', metric:'Day 78 deadline'},
+    {text:'3 discovery calls completed', metric:'By Day 84'},
+    {text:'First coaching client signed and paid', metric:'Gate: do not skip to Month 4 planning without this'},
+    {text:'Client onboarded — form complete, private group created', metric:'Within 24hrs of payment'},
+    {text:'Week 1 coaching session delivered with structured framework', metric:'Day 86–88'},
+    {text:'Complete business system documented in Notion', metric:'Day 89 deadline'},
+    {text:'Day 90 audit complete — every metric recorded, Month 4 targets set', metric:'Day 90 — close the chapter'},
+  ],
+},
+];
+
+let cur = 0;
+
+function build(){
+  const nav = document.getElementById('phaseNav');
+  const contents = document.getElementById('phaseContents');
+  phases.forEach((p,i)=>{
+    // nav btn
+    const b = document.createElement('button');
+    b.className='p-btn'; b.id=`pb${i}`; b.textContent=p.label;
+    b.style.borderColor=p.color; b.style.color=i===0?'#111':p.color;
+    b.style.background=i===0?p.color:'transparent';
+    b.onclick=()=>go(i);
+    nav.appendChild(b);
+
+    // content
+    const w = document.createElement('div');
+    w.className='phase-wrap'+(i===0?' active':''); w.id=`pw${i}`;
+    w.innerHTML=buildPhase(p,i);
+    contents.appendChild(w);
+  });
+  updateNav();
+}
+
+function buildPhase(p,i){
+  const revHTML = p.rev.map(r=>`<div class="rev-cell"><div class="rev-label">${r.label}</div><div class="rev-val">${r.val}</div><div class="rev-sub">${r.sub}</div></div>`).join('');
+  const tgtHTML = p.targets.map(t=>`<div class="tgt"><div class="tgt-val" style="color:${p.color}">${t.val}</div><div class="tgt-lbl">${t.lbl}</div><div class="tgt-sub">${t.sub}</div></div>`).join('');
+
+  const tasksHTML = p.tasks.map(t=>`
+    <div class="task">
+      <div class="task-day" style="color:${p.color}">${t.day}</div>
+      <div class="task-line" style="background:${p.color}"></div>
+      <div class="task-body">
+        <div class="task-text">${t.text}</div>
+        ${t.tip?`<div class="task-tip">⟶ ${t.tip}</div>`:''}
+        ${t.kpi?`<div class="task-kpi" style="color:${p.color};background:${p.dim};border-color:${p.border}">✓ ${t.kpi}</div>`:''}
+      </div>
+    </div>`).join('');
+
+  let tab2HTML = '';
+  if(p.angles){
+    tab2HTML = `<div class="sec-head" style="color:${p.color}">Content Angles — Financial Education Niche</div><div class="angle-grid">${p.angles.map((a,ai)=>`<div class="angle"><div class="angle-num" style="color:${p.color}">ANGLE ${String(ai+1).padStart(2,'0')}</div><div class="angle-title">${a.title}</div><div class="angle-hook">${a.hook}</div></div>`).join('')}</div>`;
+  }
+  if(p.pricing){
+    tab2HTML = `<div class="sec-head" style="color:${p.color}">Pricing Ladder — Financial Education Niche</div>
+    <table class="price-table">
+      <thead><tr><th>Tier</th><th>Price</th><th>Capacity</th><th>Purpose</th></tr></thead>
+      <tbody>${p.pricing.map(r=>`<tr><td>${r.tier}</td><td style="color:${p.color};font-family:'IBM Plex Mono',monospace;font-size:12px">${r.price}</td><td>${r.capacity}</td><td>${r.purpose}</td></tr>`).join('')}</tbody>
+    </table>`;
+  }
+  if(p.formula){
+    tab2HTML = `<div class="sec-head" style="color:${p.color}">Revenue Formula</div>
+    <div class="formula" style="background:${p.dim};border-color:${p.border}">
+      <div class="formula-label" style="color:${p.color}">${p.formula.label}</div>
+      <div class="formula-eq">${p.formula.eq}</div>
+      <div style="margin:10px 0 4px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5a6a7a">Example (conservative):</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8899aa;line-height:1.7">${p.formula.example}</div>
+      <div class="formula-result" style="color:${p.color}">${p.formula.result}</div>
+    </div>`;
+  }
+
+  const toolsHTML = p.tools.map(t=>`
+    <div class="tool">
+      <div><div class="tool-name">${t.name}</div><div class="tool-use">${t.use}</div></div>
+      <div style="text-align:right"><span class="tool-cost" style="background:${p.dim};border-color:${p.border};color:${p.color}">${t.cost}</span><span class="tool-link">${t.link}</span></div>
+    </div>`).join('');
+
+  const msHTML = p.milestones.map((m,mi)=>`
+    <div class="ms">
+      <div class="ms-check" style="border-color:${p.color};color:${p.color}">${String(mi+1).padStart(2,'0')}</div>
+      <div class="ms-body"><div class="ms-text">${m.text}</div><div class="ms-metric" style="color:${p.color}">${m.metric}</div></div>
+    </div>`).join('');
+
+  const tab2Label = p.angles ? 'Angles' : p.pricing ? 'Pricing' : 'Formula';
+
+  return `
+    <div class="p-head" style="background:linear-gradient(135deg,${p.dim} 0%,transparent 55%)">
+      <div class="p-meta">
+        <span class="p-badge" style="color:${p.color};background:${p.dim};border-color:${p.border}">${p.label}</span>
+        <span class="p-dur">${p.duration}</span>
+      </div>
+      <div class="p-title">${p.title}</div>
+      <div class="p-tagline">${p.tagline}</div>
+      <div class="goal-block" style="background:${p.dim};border-left-color:${p.color};border-top-color:${p.border};border-right-color:${p.border};border-bottom-color:${p.border}">
+        <span class="goal-lbl" style="color:${p.color}">Goal →</span>${p.goal}
+      </div>
+    </div>
+    <div class="rev-block">${revHTML}</div>
+    <div class="targets-grid">${tgtHTML}</div>
+    <div class="i-tabs">
+      <button class="i-tab active" style="color:${p.color}" onclick="tab(this,'tp-tasks-${i}',${i})">Tasks</button>
+      <button class="i-tab" onclick="tab(this,'tp-tab2-${i}',${i})">${tab2Label}</button>
+      <button class="i-tab" onclick="tab(this,'tp-tools-${i}',${i})">Tools</button>
+      <button class="i-tab" onclick="tab(this,'tp-ms-${i}',${i})">Milestones</button>
+    </div>
+    <div class="t-panel active" id="tp-tasks-${i}">${tasksHTML}</div>
+    <div class="t-panel" id="tp-tab2-${i}">${tab2HTML}</div>
+    <div class="t-panel" id="tp-tools-${i}">${toolsHTML}</div>
+    <div class="t-panel" id="tp-ms-${i}">
+      ${msHTML}
+      <div class="ms-note" style="background:${p.dim};border:1px solid ${p.border}">✦ Every milestone is a checkpoint, not a suggestion. The system only compounds when each phase is genuinely complete.</div>
+    </div>`;
+}
+
+function go(i){
+  document.querySelectorAll('.phase-wrap').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.p-btn').forEach((b,idx)=>{
+    b.style.background='transparent'; b.style.color=phases[idx].color;
+  });
+  document.getElementById(`pw${i}`).classList.add('active');
+  const btn=document.getElementById(`pb${i}`);
+  btn.style.background=phases[i].color; btn.style.color='#111';
+  cur=i; updateNav();
+  // reset tabs
+  const wrap=document.getElementById(`pw${i}`);
+  wrap.querySelectorAll('.i-tab').forEach(t=>{t.classList.remove('active');t.style.color='';});
+  wrap.querySelectorAll('.t-panel').forEach(p=>p.classList.remove('active'));
+  const ft=wrap.querySelector('.i-tab'); if(ft){ft.classList.add('active');ft.style.color=phases[i].color;}
+  const fp=wrap.querySelector('.t-panel'); if(fp) fp.classList.add('active');
+}
+
+function tab(btn,panelId,pi){
+  const wrap=document.getElementById(`pw${pi}`);
+  wrap.querySelectorAll('.i-tab').forEach(t=>{t.classList.remove('active');t.style.color='';});
+  wrap.querySelectorAll('.t-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active'); btn.style.color=phases[pi].color;
+  document.getElementById(panelId).classList.add('active');
+}
+
+function nav(d){const n=cur+d;if(n>=0&&n<phases.length)go(n);}
+
+function updateNav(){
+  const p=document.getElementById('prevBtn'),n=document.getElementById('nextBtn'),c=document.getElementById('navCount');
+  p.disabled=cur===0; c.textContent=`${cur+1} / ${phases.length}`;
+  n.disabled=cur===phases.length-1;
+  if(!n.disabled){n.style.background=phases[cur].color;n.style.borderColor=phases[cur].color;n.style.color='#111';}
+  else{n.style.background='transparent';n.style.borderColor='var(--dim)';n.style.color='var(--dim)';}
+}
+
+build();
+</script>
+</body>
+</html>
