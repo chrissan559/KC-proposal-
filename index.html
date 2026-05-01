@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Infrastructure Play — CPA Blueprint by Dchessking</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+
+/* ═══════════════════════════════════════
+   ROOT & RESET
+═══════════════════════════════════════ */
+:root {
+  --ink:       #0A0A08;
+  --paper:     #F2EDE4;
+  --paper-dim: #D4CCBF;
+  --gold:      #C9A84C;
+  --gold-dim:  #8A6F2E;
+  --red:       #B03A2E;
+  --red-dim:   #7B2820;
+  --white:     #FAF8F4;
+  --grey-1:    #1C1C18;
+  --grey-2:    #2A2A24;
+  --grey-3:    #3E3E36;
+  --grey-text: #7A7A6E;
+  --border:    #2E2E28;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; font-size: 16px; }
+
+body {
+  background: var(--ink);
+  color: var(--paper);
+  font-family: 'Libre Baskerville', Georgia, serif;
+  line-height: 1.7;
+  overflow-x: hidden;
+  cursor: default;
+}
+
+/* GRAIN OVERLAY */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23grain)'/%3E%3C/svg%3E");
+}
+
+/* ═══════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════ */
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 0 48px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(10,10,8,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-logo {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.nav-links {
+  display: flex;
+  gap: 32px;
+  list-style: none;
+}
+
+.nav-links a {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--grey-text);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover { color: var(--paper); }
+
+@media (max-width: 640px) {
+  nav { padding: 0 24px; }
+  .nav-links { display: none; }
+}
+
+/* ═══════════════════════════════════════
+   HERO
+═══════════════════════════════════════ */
+.hero {
+  min-height: 100vh;
+  padding: 120px 48px 80px;
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 80px;
+  align-items: end;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+@media (max-width: 900px) {
+  .hero { grid-template-columns: 1fr; padding: 120px 24px 60px; gap: 48px; }
+}
+
+.hero-bg-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(120px, 20vw, 280px);
+  font-weight: 300;
+  color: rgba(201,168,76,0.03);
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  line-height: 1;
+}
+
+.hero-issue {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 24px;
+  opacity: 0;
+  animation: rise 0.7s 0.1s forwards;
+}
+
+.hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(52px, 8vw, 96px);
+  font-weight: 300;
+  line-height: 1.0;
+  color: var(--white);
+  margin-bottom: 32px;
+  opacity: 0;
+  animation: rise 0.7s 0.2s forwards;
+}
+
+.hero-title em {
+  font-style: italic;
+  color: var(--gold);
+}
+
+.hero-title strong {
+  font-weight: 600;
+  display: block;
+}
+
+.hero-deck {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 16px;
+  line-height: 1.8;
+  color: var(--grey-text);
+  max-width: 520px;
+  margin-bottom: 48px;
+  opacity: 0;
+  animation: rise 0.7s 0.3s forwards;
+}
+
+.hero-deck strong { color: var(--paper); font-weight: 700; }
+
+.hero-author {
+  opacity: 0;
+  animation: rise 0.7s 0.4s forwards;
+}
+
+.author-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--white);
+  letter-spacing: 0.05em;
+}
+
+.author-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  margin-top: 4px;
+}
+
+/* HERO SIDEBAR */
+.hero-sidebar {
+  opacity: 0;
+  animation: rise 0.7s 0.5s forwards;
+}
+
+.sidebar-card {
+  border: 1px solid var(--border);
+  padding: 32px;
+  margin-bottom: 2px;
+}
+
+.sidebar-card:first-child { border-top: 2px solid var(--red); }
+
+.sidebar-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--grey-text);
+  margin-bottom: 12px;
+}
+
+.sidebar-stat {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 42px;
+  font-weight: 600;
+  color: var(--gold);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.sidebar-note {
+  font-size: 12px;
+  color: var(--grey-text);
+  line-height: 1.6;
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══════════════════════════════════════
+   CHAPTER LAYOUT
+═══════════════════════════════════════ */
+.chapter {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 96px 48px;
+  border-bottom: 1px solid var(--border);
+}
+
+@media (max-width: 640px) {
+  .chapter { padding: 64px 24px; }
+}
+
+.chapter-header {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 32px;
+  align-items: start;
+  margin-bottom: 64px;
+}
+
+@media (max-width: 640px) {
+  .chapter-header { grid-template-columns: 1fr; gap: 16px; }
+}
+
+.chapter-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 80px;
+  font-weight: 300;
+  line-height: 1;
+  color: rgba(201,168,76,0.15);
+  text-align: right;
+  padding-top: 4px;
+}
+
+.chapter-meta {}
+
+.chapter-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 12px;
+  display: block;
+}
+
+.chapter-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(36px, 5vw, 60px);
+  font-weight: 600;
+  line-height: 1.05;
+  color: var(--white);
+}
+
+.chapter-title em {
+  font-style: italic;
+  color: var(--gold);
+}
+
+.chapter-subtitle {
+  font-size: 15px;
+  color: var(--grey-text);
+  margin-top: 12px;
+  font-style: italic;
+}
+
+/* ═══════════════════════════════════════
+   CONTENT ELEMENTS
+═══════════════════════════════════════ */
+.prose {
+  max-width: 660px;
+}
+
+.prose p {
+  font-size: 16px;
+  line-height: 1.9;
+  color: var(--paper-dim);
+  margin-bottom: 24px;
+}
+
+.prose p strong {
+  color: var(--white);
+  font-weight: 700;
+}
+
+.prose p em {
+  color: var(--gold);
+  font-style: italic;
+}
+
+.prose h4 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--white);
+  margin: 40px 0 16px;
+}
+
+/* PULL QUOTE */
+.pull-quote {
+  border-left: 3px solid var(--gold);
+  padding: 24px 32px;
+  margin: 40px 0;
+  background: rgba(201,168,76,0.04);
+}
+
+.pull-quote p {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(20px, 2.5vw, 26px);
+  font-style: italic;
+  font-weight: 300;
+  line-height: 1.5;
+  color: var(--white);
+  margin: 0;
+}
+
+.pull-quote cite {
+  display: block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  margin-top: 16px;
+  font-style: normal;
+}
+
+/* DANGER BLOCK */
+.danger-block {
+  border: 1px solid rgba(176,58,46,0.4);
+  border-left: 3px solid var(--red);
+  background: rgba(176,58,46,0.06);
+  padding: 28px 32px;
+  margin: 32px 0;
+}
+
+.danger-block .block-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 12px;
+}
+
+.danger-block p {
+  font-size: 14px;
+  line-height: 1.8;
+  color: #D4887E;
+  margin: 0;
+}
+
+.danger-block p strong { color: var(--red); }
+
+/* GOLD BLOCK */
+.gold-block {
+  border: 1px solid rgba(201,168,76,0.3);
+  border-left: 3px solid var(--gold);
+  background: rgba(201,168,76,0.05);
+  padding: 28px 32px;
+  margin: 32px 0;
+}
+
+.gold-block .block-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 12px;
+}
+
+.gold-block p {
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--paper-dim);
+  margin: 0;
+}
+
+.gold-block p strong { color: var(--gold); }
+.gold-block p em { color: var(--white); font-style: normal; }
+
+/* TWO COL */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  margin: 40px 0;
+}
+
+@media (max-width: 640px) {
+  .two-col { grid-template-columns: 1fr; }
+}
+
+.col-card {
+  padding: 32px;
+  background: var(--grey-1);
+}
+
+.col-card.red-top { border-top: 2px solid var(--red); }
+.col-card.gold-top { border-top: 2px solid var(--gold); }
+
+.col-card-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.col-card.red-top .col-card-label { color: var(--red); }
+.col-card.gold-top .col-card-label { color: var(--gold); }
+
+.col-card-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: 16px;
+}
+
+.col-card ul {
+  list-style: none;
+}
+
+.col-card ul li {
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--grey-text);
+  padding: 6px 0 6px 18px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+
+.col-card ul li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--grey-3);
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.col-card.red-top ul li::before { color: var(--red-dim); }
+.col-card.gold-top ul li::before { color: var(--gold-dim); }
+
+/* COMPARISON TABLE */
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 40px 0;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.compare-table th {
+  padding: 14px 20px;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.compare-table th:first-child { color: var(--grey-text); }
+.compare-table th:nth-child(2) { color: var(--red); background: rgba(176,58,46,0.06); }
+.compare-table th:nth-child(3) { color: var(--red); background: rgba(176,58,46,0.06); }
+.compare-table th:nth-child(4) { color: var(--gold); background: rgba(201,168,76,0.06); }
+
+.compare-table td {
+  padding: 14px 20px;
+  font-size: 12px;
+  color: var(--grey-text);
+  border-bottom: 1px solid rgba(46,46,40,0.5);
+  vertical-align: top;
+  line-height: 1.6;
+}
+
+.compare-table td:first-child {
+  color: var(--paper-dim);
+  font-weight: 700;
+  font-size: 11px;
+}
+
+.compare-table td:nth-child(2),
+.compare-table td:nth-child(3) { background: rgba(176,58,46,0.03); }
+.compare-table td:nth-child(4) { background: rgba(201,168,76,0.03); color: var(--paper-dim); }
+
+.compare-table .bad { color: var(--red); }
+.compare-table .good { color: var(--gold); }
+
+/* FUNNEL STEPS */
+.funnel {
+  margin: 48px 0;
+  position: relative;
+}
+
+.funnel::before {
+  content: '';
+  position: absolute;
+  left: 24px;
+  top: 48px;
+  bottom: 48px;
+  width: 1px;
+  background: linear-gradient(to bottom, var(--gold), var(--grey-3));
+}
+
+.funnel-step {
+  display: flex;
+  gap: 32px;
+  padding: 0 0 40px 0;
+  position: relative;
+}
+
+.funnel-step:last-child { padding-bottom: 0; }
+
+.funnel-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--grey-1);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--gold);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.funnel-step:first-child .funnel-icon { border-color: var(--gold); }
+
+.funnel-body {}
+.funnel-step-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: 8px;
+  margin-top: 10px;
+}
+
+.funnel-step-body {
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--grey-text);
+}
+
+.funnel-step-metric {
+  margin-top: 10px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--gold-dim);
+}
+
+/* MATH BLOCK */
+.math-block {
+  background: var(--grey-1);
+  border: 1px solid var(--border);
+  padding: 40px;
+  margin: 40px 0;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.math-block-title {
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 28px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.math-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(46,46,40,0.6);
+  gap: 16px;
+}
+
+.math-row:last-child { border-bottom: none; }
+
+.math-label {
+  font-size: 11px;
+  color: var(--grey-text);
+  flex: 1;
+}
+
+.math-val {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--white);
+  text-align: right;
+}
+
+.math-val.gold { color: var(--gold); font-size: 15px; }
+.math-val.red  { color: var(--red); }
+.math-val.dim  { color: var(--grey-text); font-weight: 400; font-size: 11px; }
+
+/* SCALE LADDER */
+.ladder {
+  margin: 48px 0;
+}
+
+.ladder-row {
+  display: grid;
+  grid-template-columns: 160px 1fr 160px;
+  gap: 24px;
+  align-items: center;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.2s;
+}
+
+.ladder-row:hover { background: rgba(201,168,76,0.02); }
+
+@media (max-width: 640px) {
+  .ladder-row { grid-template-columns: 1fr; gap: 6px; }
+}
+
+.ladder-budget {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--gold);
+}
+
+.ladder-desc {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--grey-text);
+}
+
+.ladder-target {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--paper-dim);
+  text-align: right;
+}
+
+/* RULES GRID */
+.rules-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 2px;
+  margin: 40px 0;
+}
+
+@media (max-width: 700px) {
+  .rules-grid { grid-template-columns: 1fr; }
+}
+
+.rule-card {
+  background: var(--grey-1);
+  padding: 32px 28px;
+  border-top: 1px solid var(--border);
+  transition: border-top-color 0.3s;
+}
+
+.rule-card:hover { border-top-color: var(--gold); }
+
+.rule-n {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 52px;
+  font-weight: 300;
+  color: rgba(201,168,76,0.12);
+  line-height: 1;
+  margin-bottom: 12px;
+}
+
+.rule-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: 12px;
+}
+
+.rule-body {
+  font-size: 12px;
+  line-height: 1.8;
+  color: var(--grey-text);
+}
+
+/* CLOSING MANIFESTO */
+.manifesto {
+  background: var(--grey-1);
+  border: 1px solid var(--border);
+  padding: 64px 56px;
+  margin: 48px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.manifesto::before {
+  content: '"';
+  position: absolute;
+  top: -40px;
+  left: 32px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 300px;
+  color: rgba(201,168,76,0.04);
+  line-height: 1;
+  pointer-events: none;
+}
+
+.manifesto p {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(17px, 2vw, 21px);
+  font-weight: 300;
+  line-height: 1.8;
+  color: var(--paper-dim);
+  margin-bottom: 24px;
+  max-width: 640px;
+  position: relative;
+}
+
+.manifesto p strong {
+  color: var(--white);
+  font-weight: 600;
+}
+
+.manifesto p em {
+  color: var(--gold);
+  font-style: italic;
+}
+
+.manifesto-sig {
+  margin-top: 40px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.sig-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--white);
+}
+
+.sig-detail {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  margin-top: 4px;
+}
+
+/* FOOTER */
+footer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 60px 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.footer-brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 32px;
+  font-weight: 300;
+  color: var(--gold);
+  letter-spacing: 0.05em;
+}
+
+.footer-note {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--grey-text);
+  line-height: 1.8;
+  text-align: right;
+  max-width: 320px;
+}
+
+/* SCROLL REVEAL */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* MISC */
+.wide { max-width: none; }
+.mt-lg { margin-top: 56px; }
+.section-divider {
+  width: 48px;
+  height: 2px;
+  background: var(--gold);
+  margin: 32px 0;
+}
+
+.tag-inline {
+  display: inline-block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border: 1px solid;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.tag-inline.red { color: var(--red); border-color: rgba(176,58,46,0.4); }
+.tag-inline.gold { color: var(--gold); border-color: rgba(201,168,76,0.4); }
+
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Dchessking · The Infrastructure Play</div>
+  <ul class="nav-links">
+    <li><a href="#ch1">The Trap</a></li>
+    <li><a href="#ch2">The Play</a></li>
+    <li><a href="#ch3">The Model</a></li>
+    <li><a href="#ch4">The System</a></li>
+    <li><a href="#ch5">The Math</a></li>
+    <li><a href="#ch6">Execution</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-bg-text">INFRASTRUCTURE</div>
+
+  <div class="hero-left">
+    <div class="hero-issue">N° 01 · The Blueprint · Dchessking</div>
+    <h1 class="hero-title">
+      The<br>
+      <em>Infrastructure</em><br>
+      <strong>Play.</strong>
+    </h1>
+    <p class="hero-deck">
+      A blueprint for trading and financial services insiders who already understand the market — and are ready to stop being <strong>service providers</strong> and start operating like <strong>infrastructure owners.</strong>
+    </p>
+    <div class="hero-author">
+      <div class="author-name">Dchessking · Zedapex</div>
+      <div class="author-title">Former Fund Manager · Media Buyer · ~400K Leads Generated</div>
+    </div>
+  </div>
+
+  <div class="hero-sidebar">
+    <div class="sidebar-card">
+      <div class="sidebar-label">Leads Generated · &lt;1 Year</div>
+      <div class="sidebar-stat">~400K</div>
+      <div class="sidebar-note">Qualified inflow. Not impressions. Not reach. Converted pipeline.</div>
+    </div>
+    <div class="sidebar-card">
+      <div class="sidebar-label">The Pivot</div>
+      <div class="sidebar-stat">100%</div>
+      <div class="sidebar-note">Fund management, Zedabot, the academy — all discontinued. One lane only.</div>
+    </div>
+    <div class="sidebar-card">
+      <div class="sidebar-label">What Changed</div>
+      <div class="sidebar-stat">0</div>
+      <div class="sidebar-note">Customer complaints. Zero drawdown accountability. Zero court threats. Zero Maldives interruptions.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     CHAPTER 1 — THE TRAP
+════════════════════════════════════════ -->
+<section class="chapter reveal" id="ch1">
+  <div class="chapter-header">
+    <div class="chapter-num">01</div>
+    <div class="chapter-meta">
+      <span class="chapter-tag">The Truth Nobody Tells You</span>
+      <h2 class="chapter-title">You Are Not<br><em>The Problem.</em><br>You Are The Position.</h2>
+      <p class="chapter-subtitle">Why skilled service providers always end up catching the weight — and what that actually tells you about where the money really lives.</p>
+    </div>
+  </div>
+
+  <div class="prose">
+    <p>You know the trading ecosystem. You have probably lived inside it long enough to understand how capital moves, how brokers operate, and what speculation actually produces for most people who attempt it.</p>
+
+    <p>So this is not a beginner's lecture. This is a structural diagnosis. Because if you have spent any time as a <strong>fund manager, bot seller, copy trading operator, or paid class provider</strong> — you have already felt the weight this section describes.</p>
+
+    <div class="section-divider"></div>
+
+    <p>Here is the situation stripped to its bones.</p>
+
+    <p>A customer enters the trading ecosystem. They deploy capital. They lose money. <strong>In the speculative trading world, this is not an anomaly — it is the statistical norm.</strong> Ninety percent of retail participants lose money. That number does not shift because of your skill level, your strategy quality, or the care you bring to what you offer. It is the nature of the asset class.</p>
+
+    <p>When that customer loses — and they will — the question is not whether they will look for someone to hold accountable. <strong>The question is who catches the weight.</strong></p>
+  </div>
+
+  <div class="two-col mt-lg reveal">
+    <div class="col-card red-top">
+      <div class="col-card-label">The Service Provider</div>
+      <div class="col-card-title">Catches everything.</div>
+      <ul>
+        <li>Court threats and police reports</li>
+        <li>Reputation damage in public forums</li>
+        <li>Chargebacks and refund demands</li>
+        <li>Messages at midnight, on vacation, mid-break</li>
+        <li>Every drawdown lands on your face</li>
+        <li>Customers who never read the strategy document</li>
+        <li>No off switch. No clean separation from outcomes.</li>
+      </ul>
+    </div>
+    <div class="col-card gold-top">
+      <div class="col-card-label">The Broker / Infrastructure Operator</div>
+      <div class="col-card-title">Counts the cut. Moves on.</div>
+      <ul>
+        <li>Platform takes its spread regardless of outcome</li>
+        <li>Legal structure separates them from trader P&L</li>
+        <li>No personal liability for trading results</li>
+        <li>Customer relationship is managed, not carried</li>
+        <li>Revenue is outcome-independent by design</li>
+        <li>Scale is not capped by how many clients you can handle</li>
+        <li>The rails earn whether the trains are on time or not.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="prose reveal">
+    <div class="pull-quote">
+      <p>"There are people in this same ecosystem who never feel that heat. The brokers. The media buyers. The ones building quietly from the sidelines. They control the infrastructure — without being on the hook for outcomes."</p>
+      <cite>— Dchessking</cite>
+    </div>
+
+    <p>The Maldives story is not a flex. It is an illustration of a structural reality. While customers were threatening to pull accounts because there was <em>no activity</em> — the broker was still earning. The media buyer who drove those customers to the platform was still earning. The infrastructure owner was still earning.</p>
+
+    <p>The lesson is not that service providers are doing something wrong. The lesson is that <strong>skill and position are two separate variables</strong> — and most people in the trading space have spent their entire career optimising skill while ignoring position entirely.</p>
+
+    <p>This blueprint is about position.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     CHAPTER 2 — THE INFRASTRUCTURE PLAY
+════════════════════════════════════════ -->
+<section class="chapter reveal" id="ch2">
+  <div class="chapter-header">
+    <div class="chapter-num">02</div>
+    <div class="chapter-meta">
+      <span class="chapter-tag">Repositioning</span>
+      <h2 class="chapter-title">Traffic Is<br><em>Capital</em><br>Infrastructure.</h2>
+      <p class="chapter-subtitle">What media buying actually is — and why someone who understands how money moves is already positioned to master it.</p>
+    </div>
+  </div>
+
+  <div class="prose">
+    <p>Most people who come from the financial services world look at paid traffic and see a marketing line item. A cost. Something you spend to get attention.</p>
+
+    <p>That framing is the mistake.</p>
+
+    <p><strong>Traffic is not attention. Traffic is allocation.</strong> When you buy qualified traffic and route it to a financial platform with a known conversion rate and a known payout per action — you are not marketing. You are deploying capital into a system with measurable inputs and measurable outputs. You are operating an arbitrage position.</p>
+  </div>
+
+  <div class="pull-quote reveal">
+    <p>"Running funds taught me how money moves. Media buying taught me how to build the river it flows through."</p>
+    <cite>— Dchessking</cite>
+  </div>
+
+  <div class="prose reveal">
+    <p>The fund management background is not irrelevant here — it is the exact preparation. You already understand:</p>
+
+    <p><strong>Capital allocation under uncertainty.</strong> You are now allocating ad budget across campaigns the same way you once allocated across positions. You cut losers. You compound winners. You manage drawdown with discipline.</p>
+
+    <p><strong>Return measurement.</strong> CPL (cost per lead) vs CPA payout is the same mental model as entry price vs target return. The math is structurally identical.</p>
+
+    <p><strong>Compounding.</strong> A converting funnel that you press harder every week is compounding capital at the infrastructure level. Not borrowed capital. Your own machine.</p>
+  </div>
+
+  <div class="two-col reveal">
+    <div class="col-card red-top">
+      <div class="col-card-label">Fund Management</div>
+      <div class="col-card-title">Renting your skill.</div>
+      <ul>
+        <li>Your ceiling is set by what others risk on you</li>
+        <li>You answer to capital allocators' mood swings</li>
+        <li>Every drawdown is explained to someone else</li>
+        <li>Withdrawal cycles control your cash flow</li>
+        <li>A quiet week requires a committee conversation</li>
+        <li>Reputation is permanently entangled with client outcomes</li>
+      </ul>
+    </div>
+    <div class="col-card gold-top">
+      <div class="col-card-label">Media Buying (CPA)</div>
+      <div class="col-card-title">Owning the rails.</div>
+      <ul>
+        <li>You set the ceiling by what you're willing to deploy</li>
+        <li>The system answers with real numbers, same day</li>
+        <li>No drawdown accountability. No outcome liability.</li>
+        <li>Commissions process on schedule regardless of trader results</li>
+        <li>A converting funnel doesn't negotiate or get emotional</li>
+        <li>Scale is limited only by budget and creative capacity</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="prose reveal">
+    <div class="gold-block">
+      <div class="block-label">The Reframe</div>
+      <p><strong>Leads are not conversions. Leads are deposits.</strong> Every qualified lead that enters your pipeline is capital in a vault. Every funnel is a compounding engine. Every converting campaign is a printing press with the law of compounding sitting behind it. <em>When you understand that — you stop calling yourself a marketer. You start operating like a banker who happens to own the rails.</em></p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     CHAPTER 3 — CPA vs REVSHARE vs IB
+════════════════════════════════════════ -->
+<section class="chapter reveal" id="ch3">
+  <div class="chapter-header">
+    <div class="chapter-num">03</div>
+    <div class="chapter-meta">
+      <span class="chapter-tag">The Model</span>
+      <h2 class="chapter-title">CPA. RevShare.<br><em>And Why IB<br>Is Not The Same Game.</em></h2>
+      <p class="chapter-subtitle">The distinction that separates real media buyers from people who just think they're one.</p>
+    </div>
+  </div>
+
+  <div class="prose">
+    <p>This is where most people from the trading ecosystem make their first mistake. They hear "earning from the broker" and immediately think of the model they already know — the Introducing Broker structure. The rebate dashboard. The pip split.</p>
+
+    <p><strong>That is not media buying. And if you enter this space thinking it is, you will build the wrong system from day one.</strong></p>
+  </div>
+
+  <div class="danger-block reveal">
+    <div class="block-label">Critical Distinction</div>
+    <p><strong>Do not confuse an IB with a media buyer.</strong> They are not different sides of the same coin. They are structurally different positions with different liability profiles, different income mechanics, and entirely different ceilings. If you are earning per lot size, you are still tethered to trader behaviour. You are not infrastructure — you are a dependent variable. <strong>No real media buyer signs up for a rebate deal.</strong> If you're talking performance marketing, you don't show up with a rebate dashboard.</p>
+  </div>
+
+  <div class="prose reveal">
+    <p>Here is the actual landscape:</p>
+  </div>
+
+  <div class="wide reveal" style="margin: 40px 0; overflow-x: auto;">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Variable</th>
+          <th>IB / Rebate <span class="tag-inline red">Avoid</span></th>
+          <th>Service Provider <span class="tag-inline red">Exit</span></th>
+          <th>CPA Media Buyer <span class="tag-inline gold">Target</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>How you earn</td>
+          <td class="bad">Per lot size / spread rebate</td>
+          <td class="bad">Per client, per subscription</td>
+          <td class="good">Fixed payout per qualified action</td>
+        </tr>
+        <tr>
+          <td>Tied to trader outcomes?</td>
+          <td class="bad">Yes — lot size depends on activity</td>
+          <td class="bad">Yes — complaints follow losses</td>
+          <td class="good">No. Commission clears on deposit + trade condition</td>
+        </tr>
+        <tr>
+          <td>Customer relationship</td>
+          <td class="bad">Ongoing exposure</td>
+          <td class="bad">Full ongoing liability</td>
+          <td class="good">Platform's problem, not yours</td>
+        </tr>
+        <tr>
+          <td>Income predictability</td>
+          <td>Variable, behaviour-dependent</td>
+          <td>Variable, churn-dependent</td>
+          <td class="good">Fixed per FTD. Predictable math.</td>
+        </tr>
+        <tr>
+          <td>Ceiling</td>
+          <td>Client base size</td>
+          <td>How many clients you can manage</td>
+          <td class="good">Only your budget and creative capacity</td>
+        </tr>
+        <tr>
+          <td>Maldives test</td>
+          <td class="bad">Fails</td>
+          <td class="bad">Fails</td>
+          <td class="good">Passes. System runs without you.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="prose reveal">
+    <h4>CPA — The Clean Model</h4>
+    <p>Cost Per Action. A financial broker (via an affiliate platform like Affstore) agrees to pay you a fixed amount for every qualified trader you deliver. The qualification criteria is defined — typically a First Time Deposit (FTD) above a minimum threshold, plus initial trading activity.</p>
+
+    <p>You drive traffic. Traffic converts. Platform validates the conversion. Commission is paid. <strong>What happens to that trader's account after that point is not your variable.</strong></p>
+
+    <div class="gold-block">
+      <div class="block-label">CPA Mechanics on Affstore / IQ Option</div>
+      <p>
+        <strong>Standard CPA:</strong> Fixed payout per qualified FTD. Nigeria GEO typically $50–80 per trader.<br><br>
+        <strong>Whale Hunter CPA:</strong> Up to $1,200 per high-deposit trader ($500+ deposit). Different economics, different targeting strategy.<br><br>
+        <strong>Qualification:</strong> Trader registers via your unique link → deposits minimum $100 → executes specified initial trades → Affstore validates → commission releases within 3 business days.<br><br>
+        <em>Platform pays you. Trader's subsequent performance is the broker's relationship, not yours.</em>
+      </p>
+    </div>
+
+    <h4>RevShare — The Compounding Model</h4>
+    <p>The platform shares a percentage of its net profit from the traders you referred — for the lifetime of those traders on the platform. On Affstore, this can reach <strong>80% of net broker profit.</strong></p>
+
+    <p>RevShare does not pay immediately the way CPA does. It builds. The more traders you have deposited over time, the more active accounts exist in your pool, and the more the platform earns from them — which means the more you earn passively. <strong>This is the compounding layer.</strong></p>
+
+    <div class="gold-block">
+      <div class="block-label">The Professional Stack</div>
+      <p>Start with CPA. It gives you clean, immediate math to validate your campaigns. Once your pipeline is consistently generating FTDs and you understand your traffic quality — <em>layer RevShare on top.</em> Now you are earning immediate commissions on every new trader AND accumulating a passive income base from your entire historical trader pool. <strong>CPA is the sprint. RevShare is the compound engine behind it.</strong></p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     CHAPTER 4 — THE PIPELINE SYSTEM
+════════════════════════════════════════ -->
+<section class="chapter reveal" id="ch4">
+  <div class="chapter-header">
+    <div class="chapter-num">04</div>
+    <div class="chapter-meta">
+      <span class="chapter-tag">The Machine</span>
+      <h2 class="chapter-title">Build the River.<br><em>Not Just<br>the Rain.</em></h2>
+      <p class="chapter-subtitle">The five-stage pipeline that converts paid traffic into consistent CPA commissions — with nothing left to chance.</p>
+    </div>
+  </div>
+
+  <div class="prose">
+    <p>Most people who attempt CPA marketing run an ad directly to an affiliate link. They get clicks. They get some registrations. They get very few deposits. They conclude the offer doesn't convert. They are wrong.</p>
+
+    <p><strong>The offer converts. The pipeline was missing.</strong> An ad is a door. The funnel is the building. Professionals build the building.</p>
+  </div>
+
+  <div class="funnel reveal">
+    <div class="funnel-step">
+      <div class="funnel-icon">1</div>
+      <div class="funnel-body">
+        <div class="funnel-step-title">Paid Traffic Source</div>
+        <div class="funnel-step-body">Facebook/Meta, TikTok Ads, or native ad networks (PropellerAds, MGID). Nigeria Facebook CPMs are low. TikTok converts well for younger financially-aspirant audiences. Start on one platform. Master it before touching a second. Your job here is to buy the right click at the lowest possible cost.</div>
+        <div class="funnel-step-metric">KEY METRIC → CPM + CTR · Target CTR above 1.5% before scaling</div>
+      </div>
+    </div>
+
+    <div class="funnel-step">
+      <div class="funnel-icon">2</div>
+      <div class="funnel-body">
+        <div class="funnel-step-title">Pre-Sell / Bridge Page</div>
+        <div class="funnel-step-body">This is where most campaigns win or die. A landing page that warms the user before they hit the broker. It could be a success story, a "how I started trading with ₦50K" narrative, or an educational angle. The page does the selling. The broker page does the closing. Without this step, your cold traffic hits a product page and bounces.</div>
+        <div class="funnel-step-metric">KEY METRIC → Bridge Page CTR to Offer · Target above 40%</div>
+      </div>
+    </div>
+
+    <div class="funnel-step">
+      <div class="funnel-icon">3</div>
+      <div class="funnel-body">
+        <div class="funnel-step-title">Broker Registration (IQ Option via Affstore)</div>
+        <div class="funnel-step-body">User lands on IQ Option via your unique tracking link. They register. Your 30-day cookie is placed. Let the platform's own UX and demo experience do the work here — IQ Option's onboarding is built to convert. Your tracking pixel fires on registration. Your postback fires on FTD. Everything is measurable from this point.</div>
+        <div class="funnel-step-metric">KEY METRIC → Reg-to-FTD Rate · Healthy: 15–25%</div>
+      </div>
+    </div>
+
+    <div class="funnel-step">
+      <div class="funnel-icon">4</div>
+      <div class="funnel-body">
+        <div class="funnel-step-title">Telegram Warm Sequence</div>
+        <div class="funnel-step-body">Capture leads into a Telegram channel alongside (or before) the broker link. Run daily trading tips, earnings screenshots, and deposit motivation content. This channel reactivates registrations that didn't immediately deposit — which is where most revenue leaks. A disciplined Telegram sequence consistently recovers 20–30% of unconverted registrations. This is owned traffic. It costs nothing to run after setup.</div>
+        <div class="funnel-step-metric">KEY METRIC → Telegram → FTD Recovery Rate · Track per member</div>
+      </div>
+    </div>
+
+    <div class="funnel-step">
+      <div class="funnel-icon">5</div>
+      <div class="funnel-body">
+        <div class="funnel-step-title">Commission → Reinvestment Loop</div>
+        <div class="funnel-step-body">FTD validates. Commission clears. Affstore pays twice monthly — directly to your wallet. Set up Telegram postback notifications inside Affstore so every conversion fires a real-time ping. Then immediately deploy 50–70% of every payout back into ad spend. This is the loop. This is what turns a campaign into a compounding machine. You are not spending money on ads — you are rotating capital through a system with a known positive yield.</div>
+        <div class="funnel-step-metric">KEY METRIC → Revenue Reinvestment Rate · Target 50–70% back into spend</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="prose reveal">
+    <div class="pull-quote">
+      <p>"A converting funnel doesn't negotiate with you. It doesn't get emotional. It doesn't ghost your messages. It either prints or it doesn't. And when you find one that prints — you press it harder than any managed account would ever let you press."</p>
+      <cite>— Dchessking</cite>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     CHAPTER 5 — THE MATH
+════════════════════════════════════════ -->
+<section class="chapter reveal" id="ch5">
+  <div class="chapter-header">
+    <div class="chapter-num">05</div>
+    <div class="chapter-meta">
+      <span class="chapter-tag">Unit Economics</span>
+      <h2 class="chapter-title">Run The Numbers<br><em>Before You Run<br>The Ads.</em></h2>
+      <p class="chapter-subtitle">Every campaign decision should be driven by math, not momentum. Here is the framework from ₦200K entry to ₦1B trajectory.</p>
+    </div>
+  </div>
+
+  <div class="prose">
+    <p>You already think in numbers. This section translates the trading framework you know into the metrics that run this operation. The vocabulary changes. The discipline does not.</p>
+  </div>
+
+  <div class="math-block reveal">
+    <div class="math-block-title">// ENTRY SCENARIO — ₦200K TESTING BUDGET</div>
+    <div class="math-row"><span class="math-label">Ad Budget</span><span class="math-val">₦200,000</span></div>
+    <div class="math-row"><span class="math-label">USD equivalent at ~₦1,600/$</span><span class="math-val dim">~$125 working capital</span></div>
+    <div class="math-row"><span class="math-label">Goal at this stage</span><span class="math-val dim">Find 1 winning creative. Not profit.</span></div>
+    <div class="math-row"><span class="math-label">Target CPL (cost per FTD)</span><span class="math-val red">≤ $30–40</span></div>
+    <div class="math-row"><span class="math-label">Expected FTDs at $35 average CPL</span><span class="math-val">3–4 FTDs</span></div>
+    <div class="math-row"><span class="math-label">CPA payout per FTD (Nigeria)</span><span class="math-val gold">$50–80</span></div>
+    <div class="math-row"><span class="math-label">Break-even point</span><span class="math-val gold">2–3 FTDs</span></div>
+    <div class="math-row"><span class="math-label">What you are actually buying</span><span class="math-val dim">Data. Campaign intelligence. One winner.</span></div>
+  </div>
+
+  <div class="math-block reveal">
+    <div class="math-block-title">// THE CPL RULE — NON-NEGOTIABLE</div>
+    <div class="math-row"><span class="math-label">CPA Payout (Nigeria standard)</span><span class="math-val">~$65</span></div>
+    <div class="math-row"><span class="math-label">Maximum CPL for break-even</span><span class="math-val red">$65</span></div>
+    <div class="math-row"><span class="math-label">Target CPL for 30% margin</span><span class="math-val">≤ $45</span></div>
+    <div class="math-row"><span class="math-label">Target CPL for strong margin</span><span class="math-val gold">≤ $30</span></div>
+    <div class="math-row"><span class="math-label">CPL above payout = </span><span class="math-val red">You are funding the broker. Stop immediately.</span></div>
+  </div>
+
+  <div class="prose reveal">
+    <p>The single most important discipline in this operation is <strong>knowing your CPL cap and enforcing it ruthlessly.</strong> Every campaign metric — ad spend, creative performance, audience quality — is ultimately in service of one number: keeping your CPL below your payout.</p>
+  </div>
+
+  <div class="ladder reveal" style="margin-top: 48px;">
+    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); margin-bottom: 24px;">// SCALE TRAJECTORY</div>
+
+    <div class="ladder-row">
+      <div class="ladder-budget">₦200K</div>
+      <div class="ladder-desc">Testing phase. 3 creatives running. Accept losses as tuition. One winner is the only deliverable.</div>
+      <div class="ladder-target">Break-even target</div>
+    </div>
+    <div class="ladder-row">
+      <div class="ladder-budget">₦500K</div>
+      <div class="ladder-desc">Scale the winner. Add pre-sell page. Launch Telegram sequence. Get to 10 consistent FTDs/month.</div>
+      <div class="ladder-target">₦300–600K rev</div>
+    </div>
+    <div class="ladder-row">
+      <div class="ladder-budget">₦1–2M</div>
+      <div class="ladder-desc">Reinvest 60% of earnings. Test second and third creatives. 30–50 FTDs/month target.</div>
+      <div class="ladder-target">₦1.5–3M rev</div>
+    </div>
+    <div class="ladder-row">
+      <div class="ladder-budget">₦5M</div>
+      <div class="ladder-desc">Multiple campaigns running. RevShare stacking on top of CPA. Telegram actively recovering warm leads.</div>
+      <div class="ladder-target">₦8–12M rev</div>
+    </div>
+    <div class="ladder-row">
+      <div class="ladder-budget">₦15–25M/mo</div>
+      <div class="ladder-desc">Media buying is the core business. Whale Hunter offers active. System largely self-funding.</div>
+      <div class="ladder-target">$20K+/month</div>
+    </div>
+    <div class="ladder-row">
+      <div class="ladder-budget">₦50M+/mo</div>
+      <div class="ladder-desc">Multi-GEO. RevShare base generating passive compounding income. This is the nine-figure run rate.</div>
+      <div class="ladder-target">₦1B+ trajectory</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     CHAPTER 6 — EXECUTION
+════════════════════════════════════════ -->
+<section class="chapter reveal" id="ch6">
+  <div class="chapter-header">
+    <div class="chapter-num">06</div>
+    <div class="chapter-meta">
+      <span class="chapter-tag">Capricorn Execution</span>
+      <h2 class="chapter-title">The Rules<br><em>You Don't<br>Negotiate With.</em></h2>
+      <p class="chapter-subtitle">How the operator who reaches nine figures actually runs campaigns — day to day, week to week.</p>
+    </div>
+  </div>
+
+  <div class="rules-grid reveal">
+    <div class="rule-card">
+      <div class="rule-n">01</div>
+      <div class="rule-title">Track Everything. No Exceptions.</div>
+      <div class="rule-body">Every click, every registration, every FTD must be attributed to the exact creative and audience that produced it. Use a tracker — Voluum, BeMob, or a disciplined custom setup. Without attribution, you are not a media buyer. You are gambling with extra steps.</div>
+    </div>
+
+    <div class="rule-card">
+      <div class="rule-n">02</div>
+      <div class="rule-title">Kill Losers Inside 3,000 Impressions.</div>
+      <div class="rule-body">Give a creative a defined window. If it shows no FTD signal within 2,000–3,000 impressions, it is gone. Budget has no loyalty. The market is telling you something. Your job is to listen faster than the budget bleeds.</div>
+    </div>
+
+    <div class="rule-card">
+      <div class="rule-n">03</div>
+      <div class="rule-title">Scale Winners Deliberately.</div>
+      <div class="rule-body">When something converts, do not 10x the budget overnight. Double it. Let it restabilise. Double again. Aggressive scaling breaks the algorithm, inflates CPL, and kills the campaign that was working. Patience in scaling is not timidity — it is how compounding stays intact.</div>
+    </div>
+
+    <div class="rule-card">
+      <div class="rule-n">04</div>
+      <div class="rule-title">Testing Budget ≠ Scaling Budget.</div>
+      <div class="rule-body">Separate them mentally and operationally. Testing money is the cost of intelligence. Scaling money is capital deployment into a proven position. Mixing them is how operators panic and pull campaigns that needed three more days.</div>
+    </div>
+
+    <div class="rule-card">
+      <div class="rule-n">05</div>
+      <div class="rule-title">Always Be Testing Creative.</div>
+      <div class="rule-body">The moment you stop testing new angles is the moment your current winner begins to decay. Creative fatigue is real. The best operators run a permanent testing cycle: kill the bottom, double the top, introduce new challengers every week without exception.</div>
+    </div>
+
+    <div class="rule-card">
+      <div class="rule-n">06</div>
+      <div class="rule-title">Build What You Own.</div>
+      <div class="rule-body">Ads are rented traffic. Your Telegram channel, your email list, your content audience — those are owned assets. Every campaign should deposit something into an owned channel. When the ad account gets restricted (and eventually it will), the owned asset keeps the pipeline alive.</div>
+    </div>
+  </div>
+
+  <div class="prose reveal" style="margin-top: 56px;">
+    <h4>The Creative Angles That Convert — Nigeria</h4>
+    <p>Your audience is already inside the financial ecosystem. They understand trading. They have seen the promises. What converts is not hype — it is <strong>proof, relatability, and specificity.</strong></p>
+
+    <p><strong>Proof Screenshot:</strong> A real withdrawal or dashboard figure. ₦150,000 hitting a wallet outperforms any motivational copy. The market responds to visible, specific evidence.</p>
+
+    <p><strong>The Relatable Pivot:</strong> "I was managing other people's money. Then I found a model where I kept all of it." This speaks directly to the service provider demographic — the exact person who already feels the weight described in Chapter 1.</p>
+
+    <p><strong>Tutorial/Demo Format:</strong> Screen-record of an actual trade placement. Educational in framing, but functions as a product demo. People who watch tutorials have deposit intent already built in.</p>
+
+    <p><strong>The Structural Argument:</strong> Explain the difference between being on the hook for outcomes and being on the infrastructure side. This is not a pitch — it is the truth. The right audience converts on truth when it is stated clearly and bluntly.</p>
+
+    <div class="gold-block">
+      <div class="block-label">Weekly Testing Framework</div>
+      <p>
+        <strong>Week 1:</strong> 4 different angles, same audience, equal budget split.<br>
+        <strong>Week 2:</strong> Kill the bottom 2. Double budget on the top 2.<br>
+        <strong>Week 3:</strong> Build 3 variations of the winner — different hooks, same structure.<br>
+        <strong>Week 4:</strong> Scale the best variation. Restart the cycle with fresh angles.<br><br>
+        <em>You are always testing. The operator who stops testing starts declining. No exceptions.</em>
+      </p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     CLOSING
+════════════════════════════════════════ -->
+<section class="chapter reveal">
+  <div class="chapter-header">
+    <div class="chapter-num">—</div>
+    <div class="chapter-meta">
+      <span class="chapter-tag">For Anyone at the Edge</span>
+      <h2 class="chapter-title">The Biggest<br><em>Gambles</em><br>Always Look Insane in the Middle.</h2>
+    </div>
+  </div>
+
+  <div class="manifesto reveal">
+    <p>You will not get a clean signal. The market doesn't send a memo. The numbers will not all line up neatly before you have to decide.</p>
+
+    <p>There will always be a reason to stay where you are respected. There will always be a model that was working well enough. The fund management name that opened doors. The bot customers who kept renewing. The class that kept selling. There will always be a version of yourself that other people are still applauding.</p>
+
+    <p><strong>But if the math underneath your situation is whispering something different — listen to it.</strong> Run the numbers honestly. Strip out the sentiment. Strip out the version of yourself that the audience is comfortable with. Then ask the only question that matters.</p>
+
+    <p><em>"If I were starting today — knowing what I know now — would I still build it this way?"</em></p>
+
+    <p>If the answer is no, you already know what to do. You are just looking for permission. <strong>This page is your permission.</strong></p>
+
+    <p>You will lose people. You will lose comfort. You will lose the version of yourself that others were applauding. And on the other side of all that loss — if you have done the work — you will find the kind of compounding that the old version of you was never going to reach.</p>
+
+    <p>I left a name behind to build something heavier. <strong>I would do it again tomorrow. Twice.</strong></p>
+
+    <div class="manifesto-sig">
+      <div>
+        <div class="sig-name">Dchessking · Zedapex</div>
+        <div class="sig-detail">Former Fund Manager · CPA Media Buyer · ~400K Leads · Capricorn Execution</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">The Infrastructure Play</div>
+  <div class="footer-note">
+    N° 01 · CPA Blueprint · Dchessking<br>
+    For informational purposes only. Binary options and CFDs carry significant risk.<br>
+    Promote only in GEOs permitted under current Affstore offer rules.<br>
+    Past performance does not guarantee future results.
+  </div>
+</footer>
+
+
+<script>
+// SCROLL REVEAL
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
